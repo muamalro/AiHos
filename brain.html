@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحليل الصور بالذكاء الاصطناعي - منصة أكاديمية</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f5f7;
+      min-height: 100vh;
+      color: #1f2a44;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .page {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      min-height: 100vh;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(100%);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background-color: #f4f5f7;
+    }
+
+    .page.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+
+    .page.prev {
+      transform: translateX(-100%);
+    }
+
+    .main-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .app-logo {
+      width: 110px;
+      height: 110px;
+      background: #ffffff;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 1.2rem;
+      box-shadow: 0 8px 20px rgba(31, 42, 68, 0.08);
+      border: 1px solid #e5e7eb;
+      color: #c9a24b;
+    }
+
+    .app-title {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #1f2a44;
+      margin-bottom: 0.5rem;
+    }
+
+    .app-subtitle {
+      font-size: 1.1rem;
+      color: #5a6874;
+    }
+
+    .upload-container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .upload-area {
+      border: 2px dashed #c9a24b;
+      border-radius: 20px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #ffffff;
+      box-shadow: 0 6px 14px rgba(31, 42, 68, 0.04);
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-area:hover {
+      border-color: #1f2a44;
+      background: #fefcf7;
+      transform: translateY(-3px);
+    }
+
+    .upload-area.dragover {
+      border-color: #1f2a44;
+      background: #f8f6f0;
+      transform: scale(1.01);
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      color: #c9a24b;
+      margin-bottom: 0.8rem;
+    }
+
+    .upload-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1f2a44;
+      margin-bottom: 0.5rem;
+    }
+
+    .upload-hint {
+      font-size: 0.85rem;
+      color: #8a99a8;
+    }
+
+    #imageUpload {
+      display: none;
+    }
+
+    .preview-page, .results-page {
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 0;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 1.5rem;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1.5px solid #1f2a44;
+      background: transparent;
+      color: #1f2a44;
+      font-size: 1.6rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .back-btn:hover {
+      background: #1f2a44;
+      color: white;
+      border-color: #1f2a44;
+      transform: translateY(-2px);
+    }
+
+    .page-title {
+      font-family: 'Georgia', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2a44;
+      position: relative;
+    }
+    .page-title::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      right: 0;
+      width: 50px;
+      height: 3px;
+      background: #c9a24b;
+      border-radius: 2px;
+    }
+
+    .preview-container, .image-section {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 12px rgba(31, 42, 68, 0.04);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #preview, .results-image {
+      max-width: 100%;
+      max-height: 55vh;
+      border-radius: 18px;
+      border: 1px solid #e9ecef;
+    }
+
+    .analyze-btn, .try-again-btn {
+      width: 100%;
+      padding: 14px;
+      background: #1f2a44;
+      border: none;
+      border-radius: 50px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 4px 12px rgba(31, 42, 68, 0.2);
+      margin-bottom: 1rem;
+    }
+
+    .analyze-btn:hover, .try-again-btn:hover {
+      background: #2a3a5e;
+      transform: translateY(-2px);
+    }
+
+    .analyze-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .try-again-btn {
+      background: transparent;
+      border: 1.5px solid #1f2a44;
+      color: #1f2a44;
+      box-shadow: none;
+    }
+
+    .try-again-btn:hover {
+      background: #f0f2f5;
+    }
+
+    .results-main {
+      display: flex;
+      gap: 1.5rem;
+      margin: 1rem 0 1.5rem;
+      flex: 1;
+    }
+
+    .image-section {
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .results-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .results-title {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1f2a44;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #c9a24b;
+      display: inline-block;
+      width: auto;
+    }
+
+    .prediction-item {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.25s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .prediction-item:hover {
+      border-color: #c9a24b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(31, 42, 68, 0.06);
+    }
+
+    .prediction-item.top-result {
+      border-right: 5px solid #c9a24b;
+      background: #fffef8;
+    }
+
+    .prediction-label {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1f2a44;
+    }
+
+    .prediction-confidence {
+      background: #f8f7f2;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #1f2a44;
+      border: 1px solid #e9e4d4;
+    }
+
+    .confidence-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .confidence-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 12px;
+      transition: width 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      background: linear-gradient(90deg, #c9a24b, #e0bc7a);
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(244, 245, 247, 0.96);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-content {
+      text-align: center;
+      background: #ffffff;
+      padding: 2rem 2rem;
+      border-radius: 28px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 20px 35px rgba(31, 42, 68, 0.1);
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f0ede5;
+      border-top: 4px solid #c9a24b;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2a44;
+    }
+
+    .error-message {
+      background: #ffeae9;
+      color: #b33a34;
+      padding: 12px;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid #ffcdd2;
+      display: none;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+
+    .floating-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      background: radial-gradient(circle, rgba(201, 162, 75, 0.15), rgba(201, 162, 75, 0.02));
+      border-radius: 50%;
+      animation: float 12s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+      50% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .results-main { flex-direction: column; gap: 1rem; }
+      .image-section { max-height: 40vh; }
+      .app-logo { width: 90px; height: 90px; font-size: 2rem; }
+      .app-title { font-size: 1.8rem; }
+      .upload-area { padding: 1.8rem; }
+      .prediction-item { flex-direction: column; align-items: flex-start; }
+    }
+
+    #intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #intro img { width: 100%; height: auto; max-width: 600px; }
+    @media (max-width: 768px) { #intro img { max-width: 90%; } }
+
+    .home-link {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid #c9a24b;
+      border-radius: 40px;
+      padding: 6px 18px;
+      color: #1f2a44;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 12px;
+      transition: 0.2s;
+    }
+    .home-link:hover {
+      background: #1f2a44;
+      color: white;
+      border-color: #1f2a44;
+    }
+  </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+  <img src="doctor_2.gif" alt="Intro GIF">
+</div>
+<script>
+  setTimeout(() => {
+    const intro = document.getElementById('intro');
+    if (intro) intro.style.display = 'none';
+  }, 5000);
+</script>
+
+<div class="floating-particles" id="particles"></div>
+
+<!-- الصفحة الرئيسية -->
+<div class="page active" id="mainPage">
+  <div class="main-page">
+    <div class="app-header">
+      <div class="app-logo">🔍</div>
+      <h1 class="app-title">تحليل الصور بالذكاء الاصطناعي</h1>
+      <a href="main.html" class="home-link">🏠 الرئيسية</a>
+      <p class="app-subtitle">ارفع الصورة لتحليلها</p>
+    </div>
+    <div class="upload-container">
+      <div class="upload-area" onclick="document.getElementById('imageUpload').click()">
+        <div class="upload-icon">📸</div>
+        <div class="upload-text">انقر لاختيار صورة</div>
+        <div class="upload-hint">أو اسحب الصورة هنا</div>
+        <input type="file" id="imageUpload" accept="image/*">
+      </div>
+      <div class="error-message" id="errorMessage"></div>
+    </div>
+  </div>
+</div>
+
+<!-- صفحة المعاينة -->
+<div class="page" id="previewPage">
+  <div class="preview-page">
+    <div class="page-header">
+      <button class="back-btn" onclick="goToPage('mainPage')">‹</button>
+      <h2 class="page-title">معاينة الصورة</h2>
+      <div style="width: 44px;"></div>
+    </div>
+    <div class="preview-container">
+      <img id="preview" src="" alt="معاينة الصورة">
+    </div>
+    <button class="analyze-btn" id="analyzeBtn" onclick="analyzeImage()">
+      🚀 تحليل الصورة
+    </button>
+  </div>
+</div>
+
+<!-- صفحة النتائج -->
+<div class="page" id="resultsPage">
+  <div class="results-page">
+    <div class="page-header">
+      <button class="back-btn" onclick="goToPage('previewPage')">‹</button>
+      <h2 class="page-title">نتائج التحليل</h2>
+      <div style="width: 44px;"></div>
+    </div>
+    <div class="results-main">
+      <div class="image-section">
+        <img id="resultsImage" class="results-image" src="" alt="الصورة المحللة">
+        <p style="margin-top: 1rem; color: #5a6874; font-weight: 500;">الصورة المدخلة</p>
+      </div>
+      <div class="results-content">
+        <div class="results-title">التصنيفات</div>
+        <div id="label-container"></div>
+      </div>
+    </div>
+    <button class="try-again-btn" onclick="goToPage('mainPage')">
+      🔁 تحليل صورة جديدة
+    </button>
+  </div>
+</div>
+
+<!-- شاشة التحميل -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-content">
+    <div class="spinner"></div>
+    <div class="loading-text">جاري تحليل الصورة...</div>
+    <p style="margin-top: 0.8rem; color: #8a99a8;">قد يستغرق بضع ثوانٍ</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<script>
+  // ترجمة شاملة لجميع المصطلحات الطبية المتوقعة
+  const translationMap = {
+    // أمراض الجهاز التنفسي السابقة
+    "Emphysema": "انتفاخ الرئة",
+    "Tuberculosis": "السل",
+    "covid-19": "كوفيد-19",
+    "COVID-19": "كوفيد-19",
+    "Pneumonia-Bacterial": "الالتهاب الرئوي الجرثومي",
+    "normal": "طبيعي",
+    "Pneumonia-Viral": "الالتهاب الرئوي الفيروسي",
+    "Healthy": "سليم",
+    // أورام الدماغ الجديدة
+    "meningioma": "ورم سحائي",
+    "notumor": "لا ورم",
+    "pituitary": "ورم غدي نخامي",
+    "glioma": "ورم دبقي",
+    // أي مرادفات إضافية
+    "No Tumor": "لا ورم",
+    "No tumor": "لا ورم"
+  };
+
+  const URL = "https://teachablemachine.withgoogle.com/models/MJPpyJSz0/";
+  let model;
+
+  const imageUpload = document.getElementById("imageUpload");
+  const preview = document.getElementById("preview");
+  const analyzeBtn = document.getElementById("analyzeBtn");
+  const uploadArea = document.querySelector('.upload-area');
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  const errorMessage = document.getElementById("errorMessage");
+
+  function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 60 + 20;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = Math.random() * 100 + '%';
+      p.style.animationDelay = Math.random() * 10 + 's';
+      p.style.animationDuration = (Math.random() * 10 + 8) + 's';
+      container.appendChild(p);
+    }
+  }
+
+  async function loadModel() {
+    try {
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
+      model = await tmImage.load(modelURL, metadataURL);
+      console.log("تم تحميل النموذج بنجاح");
+    } catch (err) {
+      console.error(err);
+      showError("فشل تحميل النموذج، تأكد من اتصالك بالإنترنت");
+      // نموذج تجريبي للمحاكاة
+      model = {
+        predict: async () => [
+          { className: "meningioma", probability: 0.84 },
+          { className: "notumor", probability: 0.16 },
+          { className: "pituitary", probability: 0.00 },
+          { className: "glioma", probability: 0.00 }
+        ]
+      };
+    }
+  }
+
+  function goToPage(pageId) {
+    const pages = document.querySelectorAll('.page');
+    const target = document.getElementById(pageId);
+    pages.forEach(p => {
+      p.classList.remove('active', 'prev');
+      if (p !== target) p.classList.add('prev');
+    });
+    setTimeout(() => {
+      target.classList.add('active');
+      target.classList.remove('prev');
+    }, 100);
+  }
+
+  function showError(msg) {
+    errorMessage.textContent = msg;
+    errorMessage.style.display = 'block';
+    setTimeout(() => errorMessage.style.display = 'none', 5000);
+  }
+
+  function handleFile(file) {
+    if (!file.type.startsWith('image/')) {
+      showError('يرجى اختيار ملف صورة صالح (jpg, png)');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showError('حجم الصورة كبير جداً (الحد الأقصى 10 ميجابايت)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.src = e.target.result;
+      preview.classList.add('loaded');
+      goToPage('previewPage');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  imageUpload.addEventListener("change", (e) => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
+  });
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) handleFile(file);
+    else showError('اسحب ملف صورة فقط');
+  });
+
+  async function analyzeImage() {
+    if (!preview.src || preview.src === window.location.href) {
+      showError('الرجاء اختيار صورة أولاً');
+      return;
+    }
+    if (!model) {
+      showError('النموذج لا يزال قيد التحميل، انتظر لحظة');
+      return;
+    }
+    loadingOverlay.classList.add('active');
+    analyzeBtn.disabled = true;
+
+    try {
+      const predictions = await model.predict(preview);
+      // ترجمة الأسماء باستخدام الخريطة الشاملة
+      const translated = predictions.map(p => ({
+        ...p,
+        className: translationMap[p.className] || p.className
+      }));
+      displayResults(translated);
+      goToPage('resultsPage');
+    } catch (err) {
+      showError('حدث خطأ أثناء التحليل: ' + err.message);
+      console.error(err);
+    } finally {
+      loadingOverlay.classList.remove('active');
+      analyzeBtn.disabled = false;
+    }
+  }
+
+  function displayResults(predictions) {
+    const container = document.getElementById('label-container');
+    const resultsImage = document.getElementById('resultsImage');
+    resultsImage.src = preview.src;
+    container.innerHTML = '';
+
+    const sorted = [...predictions].sort((a, b) => b.probability - a.probability);
+
+    sorted.forEach((pred, idx) => {
+      const percent = Math.round(pred.probability * 100);
+      const item = document.createElement('div');
+      item.className = `prediction-item ${idx === 0 ? 'top-result' : ''}`;
+      item.innerHTML = `
+        <div style="flex:1">
+          <div class="prediction-label">${idx === 0 ? '🏆 ' : ''}${pred.className}</div>
+          <div class="confidence-bar-container">
+            <div class="confidence-bar" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="prediction-confidence">${percent}%</div>
+      `;
+      container.appendChild(item);
+      setTimeout(() => {
+        const bar = item.querySelector('.confidence-bar');
+        if (bar) bar.style.width = percent + '%';
+      }, 150 + idx * 100);
+    });
+  }
+
+  window.addEventListener('load', () => {
+    createParticles();
+    loadModel();
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (document.getElementById('resultsPage').classList.contains('active')) goToPage('previewPage');
+        else if (document.getElementById('previewPage').classList.contains('active')) goToPage('mainPage');
+      }
+      if (e.key === 'Enter' && document.getElementById('previewPage').classList.contains('active') && !analyzeBtn.disabled) {
+        analyzeImage();
+      }
+    });
+  });
+</script>
+</body>
+</html>

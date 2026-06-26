@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>البحث عن أقرب المستشفيات والعيادات</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f5f7;
+      color: #1f2a44;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: #1f2a44;
+      color: #ffffff;
+      padding: 25px 20px;
+      text-align: center;
+      border-bottom: 4px solid #c9a24b;
+      margin-bottom: 25px;
+      position: relative;
+    }
+    .header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      font-family: 'Georgia', serif;
+    }
+    .header p {
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+    .back-header-btn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background: transparent;
+      color: #c9a24b;
+      border: 1px solid #c9a24b;
+      padding: 8px 16px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .back-header-btn:hover {
+      background: #c9a24b;
+      color: #1f2a44;
+    }
+    .search-section {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    }
+    .filter-options h3 {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: #1f2a44;
+      border-right: 4px solid #c9a24b;
+      padding-right: 12px;
+    }
+    .option-group {
+      margin-bottom: 20px;
+    }
+    .option-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: #1f2a44;
+      font-size: 0.9rem;
+    }
+    select, input[type="range"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: #ffffff;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: #1f2a44;
+      transition: all 0.2s;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #c9a24b;
+      box-shadow: 0 0 0 2px rgba(201,162,75,0.2);
+    }
+    .range-value {
+      display: inline-block;
+      margin-right: 8px;
+      font-weight: bold;
+      color: #c9a24b;
+    }
+    button {
+      background: #1f2a44;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 700;
+      border-radius: 40px;
+      transition: all 0.25s;
+      margin: 5px;
+    }
+    button:hover {
+      background: #2a3a5e;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: #1f2a44;
+      border: 1px solid #c9a24b;
+    }
+    .btn-secondary:hover {
+      background: #fef7e6;
+      border-color: #c9a24b;
+    }
+    #status {
+      padding: 15px 20px;
+      margin: 15px 0;
+      border-radius: 20px;
+      background: #fef9e6;
+      border-right: 5px solid #c9a24b;
+      font-size: 0.9rem;
+      display: none;
+    }
+    #status.show {
+      display: block;
+    }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0 15px;
+      padding: 12px 20px;
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid #e5e7eb;
+    }
+    .results-header h3 {
+      font-size: 1.1rem;
+      color: #1f2a44;
+    }
+    .item {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.25s;
+    }
+    .item:hover {
+      box-shadow: 0 8px 20px rgba(31,42,68,0.08);
+      transform: translateY(-2px);
+    }
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .item-name {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #1f2a44;
+      flex: 1;
+    }
+    .item-distance {
+      background: #1f2a44;
+      color: #ffffff;
+      padding: 5px 14px;
+      border-radius: 40px;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+    .item-info {
+      margin: 10px 0;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #4a5b6e;
+    }
+    .item-info strong {
+      font-weight: 700;
+      color: #1f2a44;
+      margin-left: 6px;
+    }
+    .item-actions {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #edf2f7;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .item-actions button {
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      background: #f8fafc;
+      color: #1f2a44;
+      border: 1px solid #e2e8f0;
+      border-radius: 30px;
+    }
+    .item-actions button:hover {
+      background: #1f2a44;
+      color: white;
+      border-color: #1f2a44;
+    }
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #1f2a44;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .back-to-top.show {
+      display: flex;
+    }
+    .no-results {
+      text-align: center;
+      padding: 40px;
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid #e5e7eb;
+    }
+    /* شاشة الانترو */
+    #intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #intro img {
+      width: 100%;
+      height: auto;
+      max-width: 600px;
+    }
+    @media (max-width: 768px) {
+      .container { padding: 15px; }
+      .header h1 { font-size: 1.4rem; }
+      .back-header-btn { position: relative; display: inline-block; margin-top: 10px; right: 0; top: 0; }
+      .item-header { flex-direction: column; }
+      .item-actions { justify-content: center; }
+      #intro img { max-width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+  <img src="R (1).gif" alt="Intro GIF">
+</div>
+<script>
+  setTimeout(() => {
+    const intro = document.getElementById('intro');
+    if (intro) intro.style.display = 'none';
+  }, 5000);
+</script>
+
+<div class="header">
+  <button class="back-header-btn" onclick="history.back()">← رجوع</button>
+  <h1>🏥 البحث عن أقرب المستشفيات والعيادات</h1>
+  <p>حدد موقعك وابحث عن أقرب المنشآت الصحية حسب التخصص والمسافة</p>
+</div>
+
+<div class="container">
+  <div class="search-section" id="searchSection">
+    <div class="filter-options">
+      <h3>🔍 خيارات البحث</h3>
+
+      <div class="option-group">
+        <label>نوع المنشأة:</label>
+        <select id="facilityType">
+          <option value="all">جميع المنشآت الصحية</option>
+          <option value="hospital">مستشفيات</option>
+          <option value="clinic">عيادات عامة</option>
+          <option value="doctors">مكاتب أطباء</option>
+        </select>
+      </div>
+
+      <div class="option-group">
+        <label>التخصص / الخدمة:</label>
+        <select id="specialtyType">
+          <option value="all">جميع التخصصات</option>
+          <option value="dentist">طب أسنان</option>
+          <option value="optician">نظارات (بصريات)</option>
+          <option value="pharmacy">صيدلية</option>
+          <option value="veterinary">بيطري</option>
+          <option value="physiotherapy">علاج طبيعي</option>
+          <option value="laboratory">مختبر طبي</option>
+          <option value="radiology">أشعة وتصوير</option>
+          <option value="emergency">خدمات طوارئ</option>
+        </select>
+      </div>
+
+      <div class="option-group">
+        <label>ترتيب النتائج حسب:</label>
+        <select id="sortType">
+          <option value="nearest">الأقرب (المسافة)</option>
+          <option value="name">الاسم (أبجدي)</option>
+        </select>
+      </div>
+
+      <div class="option-group">
+        <label>
+          نصف قطر البحث:
+          <span class="range-value" id="radiusValue">5</span> كم
+        </label>
+        <input type="range" id="searchRadius" min="1" max="20" value="5" step="1">
+      </div>
+
+      <div class="option-group">
+        <label>عدد النتائج:</label>
+        <select id="maxResults">
+          <option value="5">5 نتيجة</option>
+          <option value="10">10 نتائج</option>
+          <option value="15" selected>15 نتيجة</option>
+          <option value="20">20 نتيجة</option>
+          <option value="50">50 نتيجة</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="searchBtn" class="btn-primary">🔎 بحث الآن</button>
+  </div>
+
+  <div id="status"></div>
+  <div id="resultsHeader"></div>
+  <div id="list"></div>
+</div>
+
+<button class="back-to-top" id="backBtn">↑</button>
+
+<script>
+const statusEl = document.getElementById('status');
+const listEl = document.getElementById('list');
+const resultsHeaderEl = document.getElementById('resultsHeader');
+const searchSection = document.getElementById('searchSection');
+const backBtn = document.getElementById('backBtn');
+const radiusInput = document.getElementById('searchRadius');
+const radiusValue = document.getElementById('radiusValue');
+
+radiusInput.oninput = () => {
+  radiusValue.textContent = radiusInput.value;
+};
+
+// زر العودة للأعلى
+window.onscroll = () => {
+  if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+    backBtn.classList.add('show');
+  } else {
+    backBtn.classList.remove('show');
+  }
+};
+backBtn.onclick = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+document.getElementById('searchBtn').onclick = async () => {
+  statusEl.textContent = 'جاري الحصول على موقعك...';
+  statusEl.className = 'show';
+  listEl.innerHTML = '';
+  resultsHeaderEl.innerHTML = '';
+
+  if (!navigator.geolocation) {
+    statusEl.textContent = '❌ المتصفح لا يدعم خاصية تحديد الموقع الجغرافي.';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    const facilityType = document.getElementById('facilityType').value;
+    const specialtyType = document.getElementById('specialtyType').value;
+    const sortType = document.getElementById('sortType').value;
+    const radius = parseInt(radiusInput.value) * 1000;
+    const maxResults = parseInt(document.getElementById('maxResults').value);
+
+    statusEl.innerHTML = `📍 موقعك: ${lat.toFixed(5)}, ${lon.toFixed(5)}<br><span class="loading">🔍 جاري البحث عن المنشآت القريبة...</span>`;
+
+    let queryParts = [];
+
+    if (specialtyType !== 'all') {
+      switch(specialtyType) {
+        case 'dentist':
+          queryParts.push(`node(around:${radius},${lat},${lon})[amenity=dentist];`);
+          queryParts.push(`way(around:${radius},${lat},${lon})[amenity=dentist];`);
+          queryParts.push(`relation(around:${radius},${lat},${lon})[amenity=dentist];`);
+          break;
+        case 'optician':
+          queryParts.push(`node(around:${radius},${lat},${lon})[shop=optician];`);
+          queryParts.push(`way(around:${radius},${lat},${lon})[shop=optician];`);
+          queryParts.push(`relation(around:${radius},${lat},${lon})[shop=optician];`);
+          break;
+        case 'pharmacy':
+          queryParts.push(`node(around:${radius},${lat},${lon})[amenity=pharmacy];`);
+          queryParts.push(`way(around:${radius},${lat},${lon})[amenity=pharmacy];`);
+          queryParts.push(`relation(around:${radius},${lat},${lon})[amenity=pharmacy];`);
+          break;
+        case 'veterinary':
+          queryParts.push(`node(around:${radius},${lat},${lon})[amenity=veterinary];`);
+          queryParts.push(`way(around:${radius},${lat},${lon})[amenity=veterinary];`);
+          queryParts.push(`relation(around:${radius},${lat},${lon})[amenity=veterinary];`);
+          break;
+        case 'physiotherapy':
+          queryParts.push(`node(around:${radius},${lat},${lon})[healthcare=physiotherapist];`);
+          queryParts.push(`way(around:${radius},${lat},${lon})[healthcare=physiotherapist];`);
+          queryParts.push(`relation(around:${radius},${lat},${lon})[healthcare=physiotherapist];`);
+          break;
+        case 'laboratory':
+          queryParts.push(`node(around:${radius},${lat},${lon})[healthcare=laboratory];`);
+          queryParts.push(`way(around:${radius},${lat},${lon})[healthcare=laboratory];`);
+          queryParts.push(`relation(around:${radius},${lat},${lon})[healthcare=laboratory];`);
+          break;
+        case 'radiology':
+          queryParts.push(`node(around:${radius},${lat},${lon})[healthcare=centre]["healthcare:speciality"~"radiology|imaging"];`);
+          queryParts.push(`way(around:${radius},${lat},${lon})[healthcare=centre]["healthcare:speciality"~"radiology|imaging"];`);
+          queryParts.push(`relation(around:${radius},${lat},${lon})[healthcare=centre]["healthcare:speciality"~"radiology|imaging"];`);
+          break;
+        case 'emergency':
+          queryParts.push(`node(around:${radius},${lat},${lon})[emergency=yes];`);
+          queryParts.push(`way(around:${radius},${lat},${lon})[emergency=yes];`);
+          queryParts.push(`relation(around:${radius},${lat},${lon})[emergency=yes];`);
+          break;
+      }
+    } else {
+      let amenityFilter = '';
+      switch(facilityType) {
+        case 'hospital':
+          amenityFilter = '[amenity=hospital]';
+          break;
+        case 'clinic':
+          amenityFilter = '[amenity=clinic]';
+          break;
+        case 'doctors':
+          amenityFilter = '[amenity=doctors]';
+          break;
+        default:
+          amenityFilter = '[amenity~"hospital|clinic|doctors"]';
+      }
+      queryParts.push(`node(around:${radius},${lat},${lon})${amenityFilter};`);
+      queryParts.push(`way(around:${radius},${lat},${lon})${amenityFilter};`);
+      queryParts.push(`relation(around:${radius},${lat},${lon})${amenityFilter};`);
+    }
+
+    const query = `
+      [out:json][timeout:25];
+      (
+        ${queryParts.join('\n        ')}
+      );
+      out center;`;
+
+    const url = 'https://overpass-api.de/api/interpreter';
+
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        body: query,
+        headers: { 'Content-Type': 'text/plain' }
+      });
+      const data = await resp.json();
+
+      if (!data.elements || data.elements.length === 0) {
+        statusEl.textContent = `⚠️ لم يتم العثور على منشآت ضمن نطاق ${radius/1000} كم. جرّب توسيع نطاق البحث أو تغيير التخصص.`;
+        listEl.innerHTML = '<div class="no-results"><h3>🚫 لا توجد نتائج</h3><p>حاول زيادة نصف قطر البحث أو اختيار تخصص آخر</p></div>';
+        return;
+      }
+
+      function dist(a, b) {
+        const R = 6371e3;
+        const toR = x => x * Math.PI / 180;
+        const dlat = toR(b.lat - a.lat);
+        const dlon = toR(b.lon - a.lon);
+        const A = Math.sin(dlat/2)**2 + Math.cos(toR(a.lat)) * Math.cos(toR(b.lat)) * Math.sin(dlon/2)**2;
+        const c = 2 * Math.atan2(Math.sqrt(A), Math.sqrt(1-A));
+        return R * c;
+      }
+
+      const places = data.elements.map(e => {
+        const center = e.type === 'node' ? { lat: e.lat, lon: e.lon } : { lat: e.center.lat, lon: e.center.lon };
+        const tags = e.tags || {};
+        let facilityTypeText = 'منشأة طبية';
+        if (tags.amenity === 'hospital') facilityTypeText = '🏥 مستشفى';
+        else if (tags.amenity === 'clinic') facilityTypeText = '🏥 عيادة';
+        else if (tags.amenity === 'doctors') facilityTypeText = '👨‍⚕️ مكتب طبيب';
+        else if (tags.amenity === 'dentist') facilityTypeText = '🦷 طبيب أسنان';
+        else if (tags.shop === 'optician') facilityTypeText = '👓 نظارات';
+        else if (tags.amenity === 'pharmacy') facilityTypeText = '💊 صيدلية';
+        else if (tags.amenity === 'veterinary') facilityTypeText = '🐾 بيطري';
+        else if (tags.healthcare === 'physiotherapist') facilityTypeText = '🦵 علاج طبيعي';
+        else if (tags.healthcare === 'laboratory') facilityTypeText = '🔬 مختبر طبي';
+        else if (tags['healthcare:speciality'] && tags['healthcare:speciality'].includes('radiology')) facilityTypeText = '📷 أشعة وتصوير';
+        else if (tags.emergency === 'yes') facilityTypeText = '🚨 خدمات طوارئ';
+
+        return {
+          id: e.id,
+          name: tags.name || tags['official_name'] || tags['name:en'] || 'منشأة بدون اسم',
+          tags: tags,
+          lat: center.lat,
+          lon: center.lon,
+          distance: dist({ lat, lon }, { lat: center.lat, lon: center.lon }),
+          facilityType: facilityTypeText
+        };
+      });
+
+      if (sortType === 'nearest') places.sort((a, b) => a.distance - b.distance);
+      else if (sortType === 'name') places.sort((a, b) => a.name.localeCompare(b.name));
+
+      const displayCount = Math.min(maxResults, places.length);
+      resultsHeaderEl.innerHTML = `
+        <div class="results-header">
+          <h3>📋 النتائج: ${places.length} منشأة متاحة</h3>
+          <button class="btn-secondary" onclick="document.getElementById('searchSection').scrollIntoView({behavior:'smooth'})">🔍 بحث جديد</button>
+        </div>
+      `;
+
+      listEl.innerHTML = '';
+      places.slice(0, displayCount).forEach(p => {
+        const d = (p.distance / 1000).toFixed(2);
+        const phone = p.tags.phone || p.tags['contact:phone'] || '';
+        const website = p.tags.website || p.tags['contact:website'] || '';
+        const openingHours = p.tags.opening_hours || '';
+        const html = `
+          <div class="item">
+            <div class="item-header">
+              <div class="item-name">${escapeHtml(p.name)}</div>
+              <div class="item-distance">${d} كم</div>
+            </div>
+            <div class="item-info">
+              <div><strong>النوع:</strong> ${p.facilityType}</div>
+              <div><strong>الموقع:</strong> ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}</div>
+              ${phone ? `<div><strong>📞 هاتف:</strong> ${escapeHtml(phone)}</div>` : ''}
+              ${openingHours ? `<div><strong>🕒 ساعات العمل:</strong> ${escapeHtml(openingHours)}</div>` : ''}
+              ${website ? `<div><strong>🌐 موقع إلكتروني:</strong> <a href="${website}" target="_blank" style="color:#c9a24b;text-decoration:underline">${escapeHtml(website)}</a></div>` : ''}
+            </div>
+            <div class="item-actions">
+              <button onclick="openMap(${p.lat}, ${p.lon})">🗺️ عرض على الخريطة</button>
+              <button onclick="openDirections(${lat}, ${lon}, ${p.lat}, ${p.lon})">🧭 اتجاهات القيادة</button>
+              ${phone ? `<button onclick="callNumber('${phone.replace(/'/g, "\\'")}')">📞 اتصال</button>` : ''}
+            </div>
+          </div>
+        `;
+        listEl.insertAdjacentHTML('beforeend', html);
+      });
+
+      statusEl.textContent = `✅ تم العثور على ${places.length} منشأة — عرض ${displayCount} نتيجة الأقرب`;
+    } catch (err) {
+      statusEl.textContent = '❌ فشل البحث: ' + err.message;
+      listEl.innerHTML = '<div class="no-results"><h3>حدث خطأ</h3><p>يرجى المحاولة مرة أخرى</p></div>';
+    }
+  }, err => {
+    statusEl.textContent = '❌ تعذر الحصول على الموقع: ' + err.message;
+  }, { enableHighAccuracy: true, timeout: 15000 });
+};
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function openMap(lat, lon) {
+  window.open(`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=18/${lat}/${lon}`, '_blank');
+}
+
+function openDirections(fromLat, fromLon, toLat, toLon) {
+  window.open(`https://www.google.com/maps/dir/?api=1&origin=${fromLat},${fromLon}&destination=${toLat},${toLon}`, '_blank');
+}
+
+function callNumber(phone) {
+  window.location.href = 'tel:' + phone;
+}
+</script>
+</body>
+</html>

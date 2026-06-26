@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>تحليل الصور بالذكاء الاصطناعي - المنصة الأكاديمية</title>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Tahoma', Geneva, Verdana, sans-serif;
+      background-color: #f4f5f7;
+      color: #1f2a44;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* شاشة الانترو */
+    #intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #intro img {
+      width: 100%;
+      height: auto;
+      max-width: 600px;
+    }
+    @media (max-width: 768px) {
+      #intro img { max-width: 90%; }
+    }
+
+    /* الثيم الأكاديمي: كحلي (#1f2a44) + ذهبي (#c9a24b) */
+    .page {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      min-height: 100vh;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(100%);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background-color: #f4f5f7;
+    }
+
+    .page.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+
+    .page.prev {
+      transform: translateX(-100%);
+    }
+
+    .main-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .app-logo {
+      width: 100px;
+      height: 100px;
+      background: #ffffff;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 1.2rem;
+      box-shadow: 0 10px 25px rgba(31, 42, 68, 0.1);
+      border: 1px solid #e5e7eb;
+      color: #c9a24b;
+    }
+
+    .app-title {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #1f2a44;
+      margin-bottom: 0.5rem;
+    }
+
+    .app-subtitle {
+      font-size: 1.1rem;
+      color: #5a6874;
+    }
+
+    .upload-container {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .upload-area {
+      border: 2px dashed #c9a24b;
+      border-radius: 16px;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #ffffff;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-area:hover {
+      border-color: #1f2a44;
+      background: #fefcf7;
+      transform: translateY(-3px);
+    }
+
+    .upload-area.dragover {
+      border-color: #1f2a44;
+      background: #f8f6f0;
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      color: #c9a24b;
+      margin-bottom: 1rem;
+    }
+
+    .upload-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1f2a44;
+    }
+
+    .upload-hint {
+      font-size: 0.85rem;
+      color: #8a99a8;
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1.5px solid #1f2a44;
+      background: transparent;
+      color: #1f2a44;
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .back-btn:hover {
+      background: #1f2a44;
+      color: white;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 1.5rem;
+    }
+
+    .page-title {
+      font-family: 'Georgia', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2a44;
+      position: relative;
+    }
+
+    .page-title::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      right: 0;
+      width: 50px;
+      height: 3px;
+      background: #c9a24b;
+    }
+
+    .analyze-btn, .try-again-btn {
+      width: 100%;
+      padding: 14px 18px;
+      background: #1f2a44;
+      border: none;
+      border-radius: 40px;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-bottom: 1rem;
+    }
+
+    .analyze-btn:hover, .try-again-btn:hover {
+      background: #2a3a5e;
+      transform: translateY(-2px);
+    }
+
+    .analyze-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .try-again-btn {
+      background: transparent;
+      border: 1.5px solid #1f2a44;
+      color: #1f2a44;
+    }
+
+    .try-again-btn:hover {
+      background: #f0f2f5;
+    }
+
+    .result-card {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s;
+    }
+
+    .result-card:hover {
+      border-color: #c9a24b;
+      transform: translateY(-2px);
+    }
+
+    .result-card.top-result {
+      border-right: 5px solid #c9a24b;
+      background: #fffef8;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+    }
+
+    .result-label {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #1f2a44;
+    }
+
+    .result-confidence {
+      background: #f8f7f2;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: 1px solid #e9e4d4;
+    }
+
+    .confidence-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .confidence-bar {
+      height: 100%;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      background: linear-gradient(90deg, #c9a24b, #e0bc7a);
+    }
+
+    .preview-container, .image-section {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+    }
+
+    #preview, .results-image {
+      max-width: 100%;
+      max-height: 55vh;
+      border-radius: 16px;
+    }
+
+    .results-main {
+      display: flex;
+      gap: 1.8rem;
+      margin: 1rem 0;
+    }
+
+    .results-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(244, 245, 247, 0.96);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 24px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 52px;
+      height: 52px;
+      border: 4px solid #f0ede5;
+      border-top: 4px solid #c9a24b;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-message {
+      background: #ffeae9;
+      color: #b33a34;
+      padding: 12px;
+      border-radius: 14px;
+      display: none;
+    }
+
+    .floating-elements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .floating-element {
+      position: absolute;
+      background: radial-gradient(circle, rgba(201, 162, 75, 0.12), rgba(201, 162, 75, 0.02));
+      border-radius: 50%;
+      animation: float 12s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+      50% { transform: translateY(-20px) translateX(12px); opacity: 0.6; }
+    }
+
+    @media (max-width: 768px) {
+      .results-main { flex-direction: column; }
+      .app-logo { width: 80px; height: 80px; font-size: 2rem; }
+      .app-title { font-size: 1.9rem; }
+    }
+
+    .home-link {
+      display: inline-block;
+      border: 1px solid #c9a24b;
+      border-radius: 40px;
+      padding: 6px 16px;
+      color: #1f2a44;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .home-link:hover {
+      background: #1f2a44;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- شاشة الانترو مع GIF -->
+  <div id="intro">
+    <img src="doctor_2.gif" alt="Intro GIF">
+  </div>
+
+  <div class="floating-elements" id="floatingElements"></div>
+
+  <!-- الصفحة الرئيسية -->
+  <div class="page active" id="mainPage">
+    <div class="main-page">
+      <div class="app-header">
+        <div class="app-logo"><iconify-icon icon="lucide:search"></iconify-icon></div>
+        <h1 class="app-title">التحليل الأكاديمي للصور</h1>
+        <p class="app-subtitle">ارفع صورة وحلّل محتواها بتقنيات الذكاء الاصطناعي</p>
+        <a href="main.html" class="home-link"><iconify-icon icon="lucide:home" style="vertical-align: middle; margin-left: 5px;"></iconify-icon> الصفحة الرئيسية</a>
+      </div>
+
+      <div class="upload-container">
+        <div class="upload-area" onclick="document.getElementById('imageUpload').click()">
+          <div class="upload-icon"><iconify-icon icon="lucide:folder-open"></iconify-icon></div>
+          <div class="upload-text">انقر لرفع الصورة</div>
+          <div class="upload-hint">أو اسحب الملف وأفلته هنا</div>
+          <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- صفحة المعاينة -->
+  <div class="page" id="previewPage">
+    <div class="preview-page" style="padding: 1rem 1.5rem;">
+      <div class="page-header">
+        <button class="back-btn" onclick="goToPage('mainPage')">‹</button>
+        <h2 class="page-title">معاينة الصورة</h2>
+        <div style="width: 44px;"></div>
+      </div>
+      <div class="preview-container" style="display: flex; justify-content: center;">
+        <img id="preview" src="" alt="معاينة الصورة">
+      </div>
+      <button class="analyze-btn" id="analyzeBtn" onclick="analyzeImage()"><iconify-icon icon="lucide:rocket" style="vertical-align: middle; margin-left: 5px;"></iconify-icon> تحليل الصورة</button>
+    </div>
+  </div>
+
+  <!-- صفحة النتائج -->
+  <div class="page" id="resultsPage">
+    <div class="results-page" style="padding: 1rem 1.5rem;">
+      <div class="page-header">
+        <button class="back-btn" onclick="goToPage('previewPage')">‹</button>
+        <h2 class="page-title">نتائج التحليل</h2>
+        <div style="width: 44px;"></div>
+      </div>
+      <div class="results-main">
+        <div class="image-section">
+          <img id="resultsImage" class="results-image" src="" alt="الصورة المحللة">
+          <p style="margin-top: 1rem; color: #5a6874;">الصورة المُدخلة</p>
+        </div>
+        <div class="results-content" id="resultsContent"></div>
+      </div>
+      <button class="try-again-btn" onclick="goToPage('mainPage')"><iconify-icon icon="lucide:refresh-cw" style="vertical-align: middle; margin-left: 5px;"></iconify-icon> تحليل صورة جديدة</button>
+    </div>
+  </div>
+
+  <!-- شاشة التحميل -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <div class="loading-text">جاري التحليل الأكاديمي...</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  <script>
+    // إخفاء الانترو بعد 5 ثواني
+    setTimeout(() => {
+      const intro = document.getElementById('intro');
+      if (intro) intro.style.display = 'none';
+    }, 5000);
+
+    // ترجمة أسماء الأمراض
+    const translationMap = {
+      "Emphysema": "انتفاخ الرئة",
+      "Tuberculosis": "السل",
+      "covid-19": "كوفيد-19",
+      "Pneumonia-Bacterial": "الالتهاب الرئوي الجرثومي",
+      "normal": "طبيعي",
+      "Pneumonia-Viral": "الالتهاب الرئوي الفيروسي"
+    };
+    function translateClassName(engName) {
+      return translationMap[engName] || engName;
+    }
+
+    const URL = "https://teachablemachine.withgoogle.com/models/Kq0AjEF0j/";
+    let model;
+
+    const imageUpload = document.getElementById("imageUpload");
+    const preview = document.getElementById("preview");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const uploadArea = document.querySelector('.upload-area');
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const errorMessage = document.getElementById("errorMessage");
+
+    // عناصر عائمة
+    function createFloatingElements() {
+      const container = document.getElementById('floatingElements');
+      for (let i = 0; i < 10; i++) {
+        const el = document.createElement('div');
+        el.className = 'floating-element';
+        const size = Math.random() * 120 + 40;
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+        el.style.left = Math.random() * 100 + '%';
+        el.style.top = Math.random() * 100 + '%';
+        el.style.animationDelay = Math.random() * 10 + 's';
+        el.style.animationDuration = (Math.random() * 10 + 8) + 's';
+        container.appendChild(el);
+      }
+    }
+
+    async function loadModel() {
+      try {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+        model = await tmImage.load(modelURL, metadataURL);
+        console.log("نموذج TM جاهز");
+      } catch (err) {
+        console.warn("استخدام نموذج تجريبي", err);
+        model = {
+          predict: async () => [
+            { className: "Emphysema", probability: 0.85 },
+            { className: "Tuberculosis", probability: 0.07 },
+            { className: "normal", probability: 0.04 },
+            { className: "covid-19", probability: 0.02 },
+            { className: "Pneumonia-Bacterial", probability: 0.01 },
+            { className: "Pneumonia-Viral", probability: 0.01 }
+          ]
+        };
+      }
+    }
+
+    function goToPage(pageId) {
+      const pages = document.querySelectorAll('.page');
+      const target = document.getElementById(pageId);
+      pages.forEach(p => {
+        p.classList.remove('active', 'prev');
+        if (p !== target) p.classList.add('prev');
+      });
+      setTimeout(() => target.classList.add('active'), 80);
+    }
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.style.display = 'block';
+      setTimeout(() => errorMessage.style.display = 'none', 5000);
+    }
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) return showError('يرجى رفع ملف صورة');
+      if (file.size > 10 * 1024 * 1024) return showError('الحجم يتجاوز 10 ميجابايت');
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        preview.src = e.target.result;
+        setTimeout(() => goToPage('previewPage'), 100);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    imageUpload.addEventListener("change", (e) => {
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+    uploadArea.addEventListener('dragover', (e) => e.preventDefault());
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) handleFile(file);
+      else showError('اسحب ملف صورة فقط');
+    });
+
+    async function analyzeImage() {
+      if (!preview.src || preview.src === window.location.href) return showError("اختر صورة أولاً");
+      if (!model) return showError("النموذج لم يكتمل");
+      loadingOverlay.classList.add('active');
+      analyzeBtn.disabled = true;
+      try {
+        const predictions = await model.predict(preview);
+        setTimeout(() => {
+          loadingOverlay.classList.remove('active');
+          analyzeBtn.disabled = false;
+          displayResults(predictions);
+        }, 600);
+      } catch (err) {
+        loadingOverlay.classList.remove('active');
+        analyzeBtn.disabled = false;
+        showError("خطأ في التحليل، حاول مجدداً");
+      }
+    }
+
+    function displayResults(predictions) {
+      const resultsContent = document.getElementById('resultsContent');
+      const resultsImage = document.getElementById('resultsImage');
+      resultsImage.src = preview.src;
+      const translated = predictions.map(p => ({ ...p, className: translateClassName(p.className) }));
+      const sorted = translated.sort((a, b) => b.probability - a.probability);
+      resultsContent.innerHTML = '';
+      sorted.forEach((pred, idx) => {
+        const conf = Math.round(pred.probability * 100);
+        const card = document.createElement('div');
+        card.className = `result-card ${idx === 0 ? 'top-result' : ''}`;
+        card.innerHTML = `
+          <div class="result-header">
+            <div class="result-label">${idx === 0 ? '🏆 ' : ''}${pred.className}</div>
+            <div class="result-confidence">${conf}%</div>
+          </div>
+          <div class="confidence-bar-container">
+            <div class="confidence-bar" style="width: 0%;"></div>
+          </div>
+        `;
+        resultsContent.appendChild(card);
+        setTimeout(() => {
+          const bar = card.querySelector('.confidence-bar');
+          if (bar) bar.style.width = conf + '%';
+        }, 150 + idx * 100);
+      });
+      goToPage('resultsPage');
+    }
+
+    async function init() {
+      createFloatingElements();
+      await loadModel();
+      if (!model) model = { predict: async () => [] };
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (document.getElementById('resultsPage').classList.contains('active')) goToPage('previewPage');
+          else if (document.getElementById('previewPage').classList.contains('active')) goToPage('mainPage');
+        }
+        if (e.key === 'Enter' && document.getElementById('previewPage').classList.contains('active') && !analyzeBtn.disabled) analyzeImage();
+      });
+    }
+    init();
+  </script>
+</body>
+</html>

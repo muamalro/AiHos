@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>عارض الصور - أكاديمي</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;           /* خلفية رمادية فاتحة */
+      --card: #ffffff;         /* بطاقة بيضاء */
+      --accent: #1f2a44;       /* كحلي غامق للنصوص الرئيسية */
+      --gold: #c9a24b;         /* ذهبي للتمييز */
+      --border: #e5e7eb;       /* حدود خفيفة */
+      --glass: rgba(31, 42, 68, 0.03);
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--accent);
+    }
+    .container {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: var(--card);
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(31, 42, 68, 0.06);
+      max-width: 920px;
+      width: 100%;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .top {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      font-family: 'Georgia', serif;
+      color: var(--accent);
+      border-right: 4px solid var(--gold);
+      padding-right: 12px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    button, .btn-download {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--accent);
+      padding: 8px 18px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.25s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button:hover, .btn-download:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    .img-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: var(--glass);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      margin-top: 8px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .note {
+      margin-top: 16px;
+      font-size: 0.75rem;
+      opacity: 0.7;
+      text-align: center;
+      color: #5a6874;
+    }
+    @media (max-width: 520px) {
+      .card { padding: 18px; }
+      .title { font-size: 1.1rem; }
+      button, .btn-download { padding: 6px 14px; font-size: 0.8rem; }
+    }
+    /* شاشة الانترو */
+    #intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #intro img {
+      width: 100%;
+      height: auto;
+      max-width: 600px;
+    }
+    @media (max-width: 768px) {
+      #intro img { max-width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+  <img src="R (1).gif" alt="Intro GIF">
+</div>
+<script>
+  setTimeout(() => {
+    const intro = document.getElementById('intro');
+    if (intro) intro.style.display = 'none';
+  }, 5000);
+</script>
+
+<div class="container">
+  <div class="card">
+    <div class="top">
+      <div class="title">🖼️ عارض الصور</div>
+      <div class="controls">
+        <button id="backBtn">← رجوع</button>
+        <a id="downloadLink" download="image.png" class="btn-download">⬇ تحميل الصورة</a>
+      </div>
+    </div>
+
+    <div class="img-wrap">
+      <img id="mainImage" alt="الصورة المطلوبة" src="https://www2.0zz0.com/2025/10/01/10/191863434.png" />
+    </div>
+
+    <div class="note">
+      📘 إذا لم يعمل زر الرجوع (لأن الصفحة فتحت مباشرة)، استخدم زر الرجوع في المتصفح أو أغلق النافذة.
+    </div>
+  </div>
+</div>
+
+<script>
+  // زر الرجوع
+  const backBtn = document.getElementById('backBtn');
+  backBtn.addEventListener('click', () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = 'about:blank';
+    }
+  });
+
+  // تحميل الصورة
+  const img = document.getElementById('mainImage');
+  const downloadLink = document.getElementById('downloadLink');
+
+  img.addEventListener('load', () => {
+    // محاولة جلب الصورة كـ blob لتحميل محلي
+    fetch(img.src, { mode: 'cors' })
+      .then(res => res.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.download = 'image.png';
+      })
+      .catch(() => {
+        // في حالة فشل CORS، نستخدم الرابط المباشر
+        downloadLink.href = img.src;
+      });
+  });
+
+  // إذا كانت الصورة محملة مسبقاً (ذاكرة التخزين)
+  if (img.complete) {
+    fetch(img.src, { mode: 'cors' })
+      .then(res => res.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+      })
+      .catch(() => {
+        downloadLink.href = img.src;
+      });
+  }
+</script>
+</body>
+</html>

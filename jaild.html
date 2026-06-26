@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التعرف على الصور</title>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --navy: #1f2a44;
+            --slate: #34405a;
+            --gold: #c9a24b;
+            --gold-light: #e6cf9c;
+            --bg: #f4f5f7;
+            --card: #ffffff;
+            --text: #1f2a37;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --success-bg: #eaf3ec;
+            --success-text: #2f6b46;
+            --error-bg: #f8e9e9;
+            --error-text: #9c3b3b;
+            --loading-bg: #f4ecdb;
+            --loading-text: #8a6a23;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: var(--text);
+            font-family: 'Georgia', 'Segoe UI', serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(31,42,68,0.12);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            background: var(--navy);
+            color: #fff;
+            padding: 28px 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--gold);
+        }
+
+        .header h1 {
+            font-size: 1.7rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .header p {
+            font-size: 0.9rem;
+            color: var(--gold-light);
+            font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* ======= Layout ======= */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 700px) {
+            .main-content { flex-direction: row; }
+            .camera-section { border-left: 1px solid var(--border); }
+            .results-section { flex: 0 0 300px; }
+        }
+
+        .camera-section  { flex: 1; padding: 22px; }
+        .results-section { background: #fafbfc; padding: 22px; }
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--navy);
+            text-align: center;
+            font-family: 'Segoe UI', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 8px;
+        }
+
+        /* ======= Video ======= */
+        #video-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 15px;
+            aspect-ratio: 4/3;
+            border: 1px solid var(--border);
+        }
+
+        #live-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        #snap-canvas { display: none; }
+
+        #image-preview {
+            width: 100%;
+            border-radius: 8px;
+            display: none;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+        }
+
+        /* ======= Controls ======= */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .btn {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: var(--navy);
+            color: #fff;
+        }
+        .btn-primary:not(:disabled):hover { background: var(--slate); }
+
+        .btn-secondary {
+            background: var(--gold);
+            color: var(--navy);
+        }
+
+        .btn-danger {
+            background: #fff;
+            color: var(--error-text);
+            border: 1px solid var(--error-text);
+        }
+        .btn-danger:not(:disabled):hover { background: var(--error-bg); }
+
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn:not(:disabled):hover { transform: translateY(-1px); }
+
+        .file-upload { display: none; }
+        .file-upload-label {
+            padding: 11px 22px;
+            background: #fff;
+            color: var(--navy);
+            border: 1px solid var(--navy);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .file-upload-label:hover { background: var(--navy); color: #fff; transform: translateY(-1px); }
+
+        /* ======= Results ======= */
+        #results-container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .prediction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 14px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-right: 4px solid var(--gold);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .prediction-item:first-child {
+            border-right: 4px solid var(--navy);
+            background: #f7f8fa;
+        }
+
+        .prediction-label {
+            font-size: 0.92rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+        .prediction-probability {
+            font-size: 0.88rem;
+            background: var(--navy);
+            color: var(--gold-light);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .prediction-item:first-child .prediction-probability {
+            background: var(--gold);
+            color: var(--navy);
+        }
+
+        /* ======= Status ======= */
+        .status {
+            text-align: center;
+            padding: 10px 15px;
+            margin-top: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .status.loading  { background: var(--loading-bg); color: var(--loading-text); }
+        .status.error    { background: var(--error-bg); color: var(--error-text); }
+        .status.success  { background: var(--success-bg); color: var(--success-text); }
+
+        .loading-spinner {
+            display: none;
+            width: 32px; height: 32px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--gold);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 15px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ======= Camera indicator ======= */
+        .cam-badge {
+            position: absolute;
+            top: 10px; left: 10px;
+            background: rgba(31,42,68,0.8);
+            color: var(--gold-light);
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>التعرف على الصور بالذكاء الاصطناعي</h1>
+        <p>نظام تعرف ذكي — وضع الكاميرا الخلفية</p>
+        <a href="index.html" style="display: inline-flex; align-items: center; margin-top: 15px; background: transparent; border: 1px solid var(--gold); border-radius: 40px; padding: 6px 20px; text-decoration: none; color: #fff; font-weight: 600; font-size: 0.9rem;"><iconify-icon icon="lucide:home" style="margin-left: 5px;"></iconify-icon> الرئيسية</a>
+    </div>
+
+    <div class="main-content">
+
+        <!-- ===== Camera Section ===== -->
+        <div class="camera-section">
+            <h2 class="section-title">الكاميرا والصور</h2>
+
+            <div class="controls">
+                <button class="btn btn-primary"  id="start-btn" onclick="startCamera()">تشغيل الكاميرا</button>
+                <button class="btn btn-danger"   id="stop-btn"  onclick="stopCamera()" disabled>إيقاف</button>
+                <label for="file-input" class="file-upload-label">رفع صورة</label>
+                <input  type="file" id="file-input" class="file-upload" accept="image/*" onchange="handleFileUpload(event)">
+            </div>
+
+            <!-- Live video from back camera -->
+            <div id="video-wrapper" style="display:none;">
+                <video id="live-video" autoplay playsinline muted></video>
+                <span class="cam-badge">الكاميرا الخلفية</span>
+            </div>
+
+            <!-- Hidden canvas for snapshots -->
+            <canvas id="snap-canvas"></canvas>
+
+            <!-- Image preview (for uploaded files) -->
+            <img id="image-preview" alt="preview">
+
+            <div class="loading-spinner" id="loading-spinner"></div>
+            <div id="status-message"></div>
+        </div>
+
+        <!-- ===== Results Section ===== -->
+        <div class="results-section">
+            <h2 class="section-title">النتائج</h2>
+            <div id="results-container">
+                <p style="text-align:center;color:var(--muted);font-style:italic;font-family:'Segoe UI',sans-serif;font-size:0.9rem;">
+                    شغّل الكاميرا أو رفع صورة لعرض النتائج.
+                </p>
+            </div>
+        </div>
+
+    </div><!-- .main-content -->
+</div><!-- .container -->
+
+<!-- TensorFlow + Teachable Machine -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+<script>
+    // ─── Config ──────────────────────────────────────────────────
+    const MODEL_URL = "https://teachablemachine.withgoogle.com/models/pXAZo76Hn/";
+    const PREDICT_INTERVAL_MS = 800;   // كم ميلي-ثانية بين كل تنبؤ
+
+    let model, maxPredictions;
+    let isModelLoaded  = false;
+    let isCameraRunning = false;
+    let videoStream    = null;
+    let predictTimer   = null;
+
+    // ─── Load Model ──────────────────────────────────────────────
+    async function loadModel() {
+        showStatus('جاري تحميل النموذج...', 'loading');
+        showLoading(true);
+        try {
+            model = await tmImage.load(MODEL_URL + "model.json", MODEL_URL + "metadata.json");
+            maxPredictions  = model.getTotalClasses();
+            isModelLoaded   = true;
+            showStatus('تم تحميل النموذج.', 'success');
+        } catch (err) {
+            showStatus('فشل تحميل النموذج. تحقق من الاتصال بالإنترنت.', 'error');
+            console.error(err);
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // ─── Start Camera (Back Camera) ──────────────────────────────
+    async function startCamera() {
+        if (!isModelLoaded) await loadModel();
+        if (!isModelLoaded) return;
+
+        showStatus('جاري تشغيل الكاميرا الخلفية...', 'loading');
+
+        try {
+            // طلب الكاميرا الخلفية
+            const constraints = {
+                video: {
+                    facingMode: { exact: "environment" },  // ← الكاميرا الخلفية
+                    width:  { ideal: 640 },
+                    height: { ideal: 480 }
+                }
+            };
+
+            // fallback إذا ما دعمت الجهاز exact
+            let stream;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+            } catch (e) {
+                // جرب بدون exact
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" }
+                });
+            }
+
+            videoStream = stream;
+            const video  = document.getElementById('live-video');
+            video.srcObject = stream;
+            await video.play();
+
+            document.getElementById('video-wrapper').style.display = 'block';
+            document.getElementById('image-preview').style.display  = 'none';
+            document.getElementById('stop-btn').disabled  = false;
+            document.getElementById('start-btn').disabled = true;
+
+            isCameraRunning = true;
+            showStatus('الكاميرا الخلفية تعمل الآن.', 'success');
+
+            // ابدأ التنبؤ بشكل دوري
+            predictTimer = setInterval(predictFromVideo, PREDICT_INTERVAL_MS);
+
+        } catch (err) {
+            console.error(err);
+            showStatus('تعذر الوصول إلى الكاميرا. يرجى السماح بالصلاحية.', 'error');
+        }
+    }
+
+    // ─── Stop Camera ─────────────────────────────────────────────
+    function stopCamera() {
+        clearInterval(predictTimer);
+        predictTimer = null;
+
+        if (videoStream) {
+            videoStream.getTracks().forEach(t => t.stop());
+            videoStream = null;
+        }
+
+        document.getElementById('live-video').srcObject   = null;
+        document.getElementById('video-wrapper').style.display = 'none';
+        document.getElementById('stop-btn').disabled  = true;
+        document.getElementById('start-btn').disabled = false;
+
+        isCameraRunning = false;
+        showStatus('تم إيقاف الكاميرا.', 'success');
+        clearResults();
+    }
+
+    // ─── Predict from live video ──────────────────────────────────
+    async function predictFromVideo() {
+        const video  = document.getElementById('live-video');
+        const canvas = document.getElementById('snap-canvas');
+        if (!video.videoWidth) return;
+
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        await predict(canvas);
+    }
+
+    // ─── Handle File Upload ───────────────────────────────────────
+    async function handleFileUpload(event) {
+        if (!isModelLoaded) await loadModel();
+        if (!isModelLoaded) return;
+
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (isCameraRunning) stopCamera();
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const img = new Image();
+            img.onload = async () => {
+                const preview = document.getElementById('image-preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+
+                const canvas = document.getElementById('snap-canvas');
+                canvas.width  = img.width;
+                canvas.height = img.height;
+                canvas.getContext('2d').drawImage(img, 0, 0);
+
+                await predict(canvas);
+                showStatus('تم تحليل الصورة.', 'success');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ─── Core Predict ─────────────────────────────────────────────
+    async function predict(canvas) {
+        if (!model || !canvas) return;
+        try {
+            const preds = await model.predict(canvas);
+            displayResults(preds);
+        } catch (err) {
+            console.error('Prediction error:', err);
+        }
+    }
+
+    // ─── Display Results ──────────────────────────────────────────
+    const LABELS_AR = {
+        'normal': 'طبيعي',
+        'Alopecia Area': 'الثعلبة',
+        'psoriasis': 'الصدفية',
+        'anthrax': 'الجمرة الخبيثة',
+        'nailfungas': 'فطريات الأظافر',
+        'nail fungus': 'فطريات الأظافر'
+    };
+
+    function translateLabel(name) {
+        return LABELS_AR[name] || LABELS_AR[name.trim()] || name;
+    }
+
+    function displayResults(predictions) {
+        const container = document.getElementById('results-container');
+        container.innerHTML = '';
+
+        predictions
+            .slice()
+            .sort((a, b) => b.probability - a.probability)
+            .forEach((pred) => {
+                const div = document.createElement('div');
+                div.className = 'prediction-item';
+                div.innerHTML = `
+                    <span class="prediction-label">${translateLabel(pred.className)}</span>
+                    <span class="prediction-probability">${(pred.probability*100).toFixed(1)}%</span>
+                `;
+                container.appendChild(div);
+            });
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────
+    function clearResults() {
+        document.getElementById('results-container').innerHTML =
+            '<p style="text-align:center;color:var(--muted);font-style:italic;font-family:\'Segoe UI\',sans-serif;font-size:0.9rem;">شغّل الكاميرا أو رفع صورة.</p>';
+    }
+
+    function showStatus(msg, type) {
+        const el = document.getElementById('status-message');
+        el.textContent  = msg;
+        el.className    = `status ${type}`;
+        if (type === 'success') setTimeout(() => { el.textContent=''; el.className=''; }, 3000);
+    }
+
+    function showLoading(show) {
+        document.getElementById('loading-spinner').style.display = show ? 'block' : 'none';
+    }
+
+    // ─── Init ─────────────────────────────────────────────────────
+    window.addEventListener('load', loadModel);
+    window.addEventListener('beforeunload', () => { if (isCameraRunning) stopCamera(); });
+</script>
+
+</body>
+</html>

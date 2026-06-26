@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تشريح الكلية البشرية ثلاثي الأبعاد - مقطع عرضي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f4f5f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #1f2a44;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #1f2a44;
+            border-radius: 20px;
+            width: 100%;
+            box-shadow: 0 6px 14px rgba(31, 42, 68, 0.15);
+            border-bottom: 3px solid #c9a24b;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-family: 'Georgia', serif;
+        }
+        
+        .description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #e0e6ed;
+        }
+        
+        .model-container {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            min-height: 500px;
+            margin-bottom: 30px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(31, 42, 68, 0.15);
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
+        
+        .model-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .back-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #1f2a44;
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            border: 1px solid #c9a24b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(31, 42, 68, 0.2);
+            margin-top: 20px;
+        }
+        
+        .back-button:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(31, 42, 68, 0.25);
+            border-color: #1f2a44;
+        }
+        
+        .back-button:active {
+            transform: translateY(1px);
+        }
+        
+        .instructions, .offline-info {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 24px;
+            margin-top: 25px;
+            max-width: 800px;
+            border: 1px solid #e5e7eb;
+            text-align: right;
+            box-shadow: 0 4px 12px rgba(31, 42, 68, 0.04);
+        }
+        
+        .instructions h2, .offline-info h2 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #1f2a44;
+            border-right: 4px solid #c9a24b;
+            padding-right: 12px;
+            font-weight: 700;
+        }
+        
+        .instructions ul {
+            text-align: right;
+            list-style-position: inside;
+            padding-right: 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #4a5b6e;
+        }
+        
+        .offline-info {
+            display: none;
+        }
+        
+        .offline-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #c9a24b;
+            color: #1f2a44;
+            border-radius: 40px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .offline-info p {
+            color: #4a5b6e;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 24px;
+            z-index: 100;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 12px 28px rgba(31, 42, 68, 0.2);
+        }
+        
+        .loading h3 {
+            margin-bottom: 15px;
+            color: #1f2a44;
+        }
+        
+        .progress-bar {
+            width: 250px;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #c9a24b, #e0bc7a);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .loading p {
+            color: #8a99a8;
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5rem; }
+            .description { font-size: 0.85rem; }
+            .model-container { height: 50vh; min-height: 400px; }
+            .back-button { padding: 10px 24px; font-size: 0.9rem; }
+            .instructions h2, .offline-info h2 { font-size: 1.2rem; }
+            .instructions li, .offline-info p { font-size: 0.85rem; }
+            .progress-bar { width: 200px; }
+        }
+        
+        @media (max-width: 480px) {
+            h1 { font-size: 1.3rem; }
+            .model-container { height: 45vh; min-height: 320px; }
+        }
+        
+        /* شاشة الانترو */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #intro img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+        @media (max-width: 768px) {
+            #intro img { max-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+    <img src="R.gif" alt="Intro GIF">
+</div>
+<script>
+    setTimeout(() => {
+        const intro = document.getElementById('intro');
+        if (intro) intro.style.display = 'none';
+    }, 5000);
+</script>
+
+<div class="container">
+    <header>
+        <h1>🧬 تشريح الكلية البشرية ثلاثي الأبعاد - مقطع عرضي</h1>
+        <p class="description">
+            استكشف هذا النموذج التفاعلي ثلاثي الأبعاد المفصل للكلية البشرية. يتم تخزين هذا النموذج مؤقتاً للاستخدام دون اتصال بالإنترنت بعد التحميل الأول.
+        </p>
+    </header>
+    
+    <div class="model-container">
+        <div class="loading" id="loading">
+            <h3>جاري تحميل النموذج ثلاثي الأبعاد...</h3>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <p>سيكون النموذج متاحاً للاستخدام دون اتصال بعد اكتمال التحميل</p>
+        </div>
+        
+        <div class="sketchfab-embed-wrapper">
+            <iframe 
+                id="model-iframe" 
+                title="تشريح الكلية البشرية - مقطع عرضي" 
+                frameborder="0" 
+                allowfullscreen 
+                mozallowfullscreen="true" 
+                webkitallowfullscreen="true" 
+                allow="autoplay; fullscreen; xr-spatial-tracking" 
+                xr-spatial-tracking 
+                execution-while-out-of-viewport 
+                execution-while-not-rendered 
+                web-share 
+                src="https://sketchfab.com/models/d8c0652ddff4474585ccba155c490622/embed?ui_watermark=0&ui_infos=0&ui_settings=0&ui_help=0">
+            </iframe>
+        </div>
+    </div>
+    
+    <button class="back-button" onclick="goBack()">← العودة إلى الصفحة السابقة</button>
+    
+    <div class="offline-info" id="offlineInfo">
+        <div class="offline-indicator">✓ جاهز للاستخدام دون اتصال</div>
+        <h2>هذا النموذج متاح الآن دون اتصال بالإنترنت!</h2>
+        <p>يمكنك الآن مشاهدة نموذج الكلية ثلاثي الأبعاد هذا بدون الحاجة إلى اتصال بالإنترنت.</p>
+    </div>
+    
+    <div class="instructions">
+        <h2>كيفية استخدام النموذج:</h2>
+        <ul>
+            <li>اسحب بزر الفأرة الأيسر لتدوير النموذج</li>
+            <li>استخدم عجلة الفأرة للتكبير والتصغير</li>
+            <li>اسحب بزر الفأرة الأيمن لتحريك النموذج</li>
+            <li>اضغط على زر التشغيل في الزاوية اليسرى السفلى للدوران التلقائي</li>
+            <li>يتم تخزين هذا النموذج مؤقتاً للعرض دون اتصال بعد التحميل الأول</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // تسجيل Service Worker لدعم العمل دون اتصال
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                console.log('تم تسجيل ServiceWorker بنجاح');
+            }).catch(function(err) {
+                console.log('فشل تسجيل ServiceWorker: ', err);
+            });
+        });
+    }
+
+    // عناصر التحميل
+    const loadingElement = document.getElementById('loading');
+    const progressElement = document.getElementById('progress');
+    const offlineInfo = document.getElementById('offlineInfo');
+    const iframe = document.getElementById('model-iframe');
+    
+    // محاكاة تقدم التحميل
+    let progress = 0;
+    const loadingInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(loadingInterval);
+            setTimeout(() => {
+                loadingElement.style.display = 'none';
+                offlineInfo.style.display = 'block';
+                localStorage.setItem('kidneyModelCached', 'true');
+            }, 500);
+        }
+        progressElement.style.width = progress + '%';
+    }, 200);
+    
+    // التحقق مما إذا كان النموذج مخزناً مسبقاً
+    window.addEventListener('load', function() {
+        if (localStorage.getItem('kidneyModelCached') === 'true') {
+            loadingElement.style.display = 'none';
+            offlineInfo.style.display = 'block';
+        } else {
+            loadingElement.style.display = 'block';
+        }
+    });
+    
+    // معالجة حالة الاتصال بالإنترنت
+    window.addEventListener('online', function() {
+        console.log('الجهاز متصل بالإنترنت');
+    });
+    
+    window.addEventListener('offline', function() {
+        console.log('الجهاز غير متصل بالإنترنت');
+        if (localStorage.getItem('kidneyModelCached') === 'true') {
+            offlineInfo.innerHTML = `
+                <div class="offline-indicator">🔌 وضع عدم الاتصال</div>
+                <h2>العرض في وضع عدم الاتصال</h2>
+                <p>يتم تحميل هذا النموذج من ذاكرة التخزين المؤقت. قد تكون بعض الميزات محدودة.</p>
+            `;
+            offlineInfo.style.display = 'block';
+        }
+    });
+    
+    // زر الرجوع الموثوق
+    function goBack() {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = 'main.html';
+        }
+    }
+    
+    // عند تحميل النموذج
+    iframe.addEventListener('load', function() {
+        console.log('تم تحميل النموذج ثلاثي الأبعاد بنجاح');
+    });
+</script>
+</body>
+</html>

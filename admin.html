@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تتبع الأمراض في العراق</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f5f7;
+            min-height: 100vh;
+            color: #1f2a44;
+        }
+        
+        .navbar {
+            background: #1f2a44;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #c9a24b;
+        }
+        
+        .navbar h1 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-family: 'Georgia', serif;
+        }
+        
+        .navbar .user-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            color: #ffffff;
+        }
+        
+        .back-btn {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: #1f2a44;
+            color: #ffffff;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 999;
+        }
+        
+        .back-btn:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .back-btn.show {
+            display: flex;
+        }
+        
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #c9a24b;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-family: inherit;
+            background: transparent;
+            color: #c9a24b;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-primary {
+            background: #1f2a44;
+            border-color: #1f2a44;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2a3a5e;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease-out;
+            border-right: 4px solid;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-right-color: #2ecc71;
+        }
+        
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-right-color: #e74c3c;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-right-color: #3498db;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 8px 20px rgba(31, 42, 68, 0.06);
+            margin-bottom: 2rem;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1f2a44;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: inherit;
+            background: #ffffff;
+            color: #1f2a44;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #c9a24b;
+            box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.2);
+        }
+        
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        table th,
+        table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        table th {
+            background: #1f2a44;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        table tr:hover {
+            background: #fafafc;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .status-recovered {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        
+        .status-deceased {
+            background: #1f2a44;
+            color: white;
+            border: 1px solid #1f2a44;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(31, 42, 68, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+        
+        .stat-card:hover {
+            border-color: #c9a24b;
+            transform: translateY(-3px);
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #c9a24b;
+        }
+        
+        a {
+            color: #c9a24b;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        /* شاشة الانترو */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #intro img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+        @media (max-width: 768px) {
+            #intro img { max-width: 90%; }
+            .navbar { flex-direction: column; gap: 0.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .card { padding: 1.5rem; }
+            table th, table td { padding: 0.75rem; font-size: 0.8rem; }
+        }
+        
+        .top-back-btn {
+            background: transparent;
+            border: 1px solid #c9a24b;
+            color: #c9a24b;
+            padding: 6px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .top-back-btn:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+        }
+        
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+    <img src="R (1).gif" alt="Intro GIF">
+</div>
+<script>
+    setTimeout(() => {
+        const intro = document.getElementById('intro');
+        if (intro) intro.style.display = 'none';
+    }, 5000);
+</script>
+
+<!-- شريط التنقل -->
+<nav class="navbar">
+    <div class="flex-between" style="width:100%;">
+        <h1>🇮🇶 نظام تتبع الأمراض في العراق</h1>
+        <div class="user-info">
+            <span id="usernameDisplay"></span>
+            <button id="adminBtn" class="btn hidden" onclick="showAdmin()">لوحة المشرف</button>
+            <button id="logoutBtn" class="btn btn-danger hidden" onclick="logout()">تسجيل خروج</button>
+        </div>
+    </div>
+</nav>
+
+<!-- زر رجوع سفلي -->
+<button id="backBtn" class="back-btn" onclick="goBack()">←</button>
+
+<div class="container">
+    <div id="alertContainer"></div>
+    
+    <!-- صفحة تسجيل الدخول -->
+    <div id="loginPage">
+        <div class="card" style="max-width: 500px; margin: 3rem auto;">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #1f2a44;">تسجيل الدخول</h2>
+            <form id="loginForm" onsubmit="login(event)">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">دخول</button>
+            </form>
+            <p style="text-align: center; margin-top: 1.5rem;">
+                ليس لديك حساب؟ <a href="#" onclick="showRegister()">سجل الآن</a>
+            </p>
+            <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fc; border-radius: 16px; border: 1px solid #e5e7eb;">
+                <p style="margin-bottom: 0.5rem;"><strong>بيانات اختبارية:</strong></p>
+                <p style="margin: 0;">اسم المستخدم: admin</p>
+                <p style="margin: 0;">كلمة المرور: admin123</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- صفحة التسجيل -->
+    <div id="registerPage" class="hidden">
+        <div class="card" style="max-width: 500px; margin: 3rem auto;">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #1f2a44;">إنشاء حساب جديد</h2>
+            <form id="registerForm" onsubmit="register(event)">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="registerUsername" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="registerPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">تسجيل</button>
+            </form>
+            <p style="text-align: center; margin-top: 1.5rem;">
+                لديك حساب؟ <a href="#" onclick="showLogin()">تسجيل الدخول</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- الصفحة الرئيسية -->
+    <div id="mainPage" class="hidden">
+        <div class="card">
+            <h2 style="margin-bottom: 1.5rem; color: #1f2a44;">إضافة حالة مرضية جديدة</h2>
+            <form id="caseForm" onsubmit="addCase(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>المرض</label>
+                        <input type="text" id="disease" required placeholder="مثال: كوفيد-19، إنفلونزا">
+                    </div>
+                    <div class="form-group">
+                        <label>المحافظة</label>
+                        <select id="governorate" required>
+                            <option value="">اختر المحافظة</option>
+                            <option value="بغداد">بغداد</option>
+                            <option value="البصرة">البصرة</option>
+                            <option value="نينوى">نينوى</option>
+                            <option value="أربيل">أربيل</option>
+                            <option value="كربلاء">كربلاء</option>
+                            <option value="النجف">النجف</option>
+                            <option value="ذي قار">ذي قار</option>
+                            <option value="القادسية">القادسية</option>
+                            <option value="ميسان">ميسان</option>
+                            <option value="المثنى">المثنى</option>
+                            <option value="واسط">واسط</option>
+                            <option value="صلاح الدين">صلاح الدين</option>
+                            <option value="الأنبار">الأنبار</option>
+                            <option value="ديالى">ديالى</option>
+                            <option value="بابل">بابل</option>
+                            <option value="كركوك">كركوك</option>
+                            <option value="دهوك">دهوك</option>
+                            <option value="السليمانية">السليمانية</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات (اختياري)</label>
+                    <textarea id="notes" rows="3" placeholder="أي معلومات إضافية..."></textarea>
+                </div>
+                <p style="margin-bottom: 1rem; color: #1f2a44;">
+                    <strong>📍 انقر على الخريطة لتحديد الموقع</strong>
+                </p>
+                <input type="hidden" id="latitude">
+                <input type="hidden" id="longitude">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">➕ إضافة حالة</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h2 style="margin-bottom: 1.5rem; color: #1f2a44;">🗺️ خريطة الحالات المرضية في العراق</h2>
+            <div id="map"></div>
+        </div>
+        
+        <div class="card">
+            <h2 style="margin-bottom: 1.5rem; color: #1f2a44;">📊 إحصائيات الحالات</h2>
+            <div id="stats" class="stats-grid"></div>
+        </div>
+    </div>
+    
+    <!-- لوحة المشرف -->
+    <div id="adminPage" class="hidden">
+        <div class="card">
+            <div class="flex-between" style="margin-bottom: 1.5rem;">
+                <h2 style="color: #1f2a44;">🔧 لوحة تحكم المشرف</h2>
+                <button class="btn" onclick="showMain()">← العودة للرئيسية</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="adminTable">
+                    <thead>
+                        <tr><th>#</th><th>المرض</th><th>المحافظة</th><th>الحالة</th><th>المستخدم</th><th>التاريخ</th><th>ملاحظات</th><th>إجراءات</th></tr>
+                    </thead>
+                    <tbody id="adminTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة تعديل الحالة -->
+<div id="editModal" class="modal">
+    <div class="card" style="max-width: 500px; margin: 0;">
+        <h3 style="margin-bottom: 1.5rem; color: #1f2a44;">تحديث الحالة</h3>
+        <form id="editForm" onsubmit="updateCase(event)">
+            <input type="hidden" id="editCaseId">
+            <div class="form-group">
+                <label>حالة المريض</label>
+                <select id="editStatus" required>
+                    <option value="Active">نشط (Active)</option>
+                    <option value="Recovered">تم الشفاء (Recovered)</option>
+                    <option value="Deceased">متوفى (Deceased)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>ملاحظات</label>
+                <textarea id="editNotes" rows="4"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">💾 حفظ التغييرات</button>
+                <button type="button" onclick="closeEditModal()" class="btn" style="flex: 1;">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+    let users = [{ username: 'admin', password: 'admin123', isAdmin: true }];
+    let cases = [];
+    let currentUser = null;
+    let map = null;
+    let selectedMarker = null;
+    
+    // إشعارات
+    function showAlert(message, type = 'success') {
+        const container = document.getElementById('alertContainer');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        container.appendChild(alert);
+        setTimeout(() => alert.remove(), 3000);
+    }
+    
+    // تسجيل الدخول
+    function login(e) {
+        e.preventDefault();
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        const user = users.find(u => u.username === username && u.password === password);
+        if (user) {
+            currentUser = user;
+            showMain();
+            showAlert('تم تسجيل الدخول بنجاح', 'success');
+        } else {
+            showAlert('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+        }
+    }
+    
+    // تسجيل حساب جديد
+    function register(e) {
+        e.preventDefault();
+        const username = document.getElementById('registerUsername').value;
+        const password = document.getElementById('registerPassword').value;
+        if (users.find(u => u.username === username)) {
+            showAlert('اسم المستخدم موجود بالفعل', 'error');
+            return;
+        }
+        users.push({ username, password, isAdmin: false });
+        showAlert('تم التسجيل بنجاح، يمكنك الدخول الآن', 'success');
+        showLogin();
+    }
+    
+    function logout() {
+        currentUser = null;
+        showLogin();
+        showAlert('تم تسجيل الخروج', 'info');
+    }
+    
+    function showLogin() {
+        document.getElementById('loginPage').classList.remove('hidden');
+        document.getElementById('registerPage').classList.add('hidden');
+        document.getElementById('mainPage').classList.add('hidden');
+        document.getElementById('adminPage').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.add('hidden');
+        document.getElementById('adminBtn').classList.add('hidden');
+        document.getElementById('usernameDisplay').textContent = '';
+        document.getElementById('backBtn').classList.add('show');
+    }
+    
+    function showRegister() {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('registerPage').classList.remove('hidden');
+        document.getElementById('mainPage').classList.add('hidden');
+        document.getElementById('adminPage').classList.add('hidden');
+        document.getElementById('backBtn').classList.add('show');
+    }
+    
+    function showMain() {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('registerPage').classList.add('hidden');
+        document.getElementById('mainPage').classList.remove('hidden');
+        document.getElementById('adminPage').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
+        document.getElementById('usernameDisplay').textContent = `مرحباً، ${currentUser.username}`;
+        document.getElementById('backBtn').classList.remove('show');
+        if (currentUser.isAdmin) {
+            document.getElementById('adminBtn').classList.remove('hidden');
+        }
+        initMap();
+        loadCases();
+    }
+    
+    function showAdmin() {
+        if (!currentUser.isAdmin) {
+            showAlert('ليس لديك صلاحية للوصول إلى هذه الصفحة', 'error');
+            return;
+        }
+        document.getElementById('mainPage').classList.add('hidden');
+        document.getElementById('adminPage').classList.remove('hidden');
+        document.getElementById('backBtn').classList.add('show');
+        loadAdminTable();
+    }
+    
+    function goBack() {
+        const loginPage = document.getElementById('loginPage');
+        const registerPage = document.getElementById('registerPage');
+        const adminPage = document.getElementById('adminPage');
+        if (!loginPage.classList.contains('hidden')) {
+            document.getElementById('backBtn').classList.remove('show');
+        } else if (!registerPage.classList.contains('hidden')) {
+            showLogin();
+        } else if (!adminPage.classList.contains('hidden')) {
+            showMain();
+        }
+    }
+    
+    // الخريطة
+    function initMap() {
+        if (map) return;
+        map = L.map('map').setView([33.3152, 44.3661], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        map.on('click', function(e) {
+            if (selectedMarker) map.removeLayer(selectedMarker);
+            document.getElementById('latitude').value = e.latlng.lat;
+            document.getElementById('longitude').value = e.latlng.lng;
+            selectedMarker = L.marker([e.latlng.lat, e.latlng.lng], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                })
+            }).addTo(map);
+            selectedMarker.bindPopup('الموقع المحدد').openPopup();
+        });
+    }
+    
+    const diseaseColors = {};
+    const colors = ['red', 'blue', 'orange', 'violet', 'darkgreen', 'purple', 'cadetblue'];
+    let colorIndex = 0;
+    function getColorForDisease(disease) {
+        if (!diseaseColors[disease]) {
+            diseaseColors[disease] = colors[colorIndex % colors.length];
+            colorIndex++;
+        }
+        return diseaseColors[disease];
+    }
+    
+    function addCase(e) {
+        e.preventDefault();
+        const lat = document.getElementById('latitude').value;
+        const lng = document.getElementById('longitude').value;
+        if (!lat || !lng) {
+            showAlert('الرجاء تحديد موقع على الخريطة', 'error');
+            return;
+        }
+        const newCase = {
+            id: Date.now(),
+            disease: document.getElementById('disease').value,
+            governorate: document.getElementById('governorate').value,
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lng),
+            notes: document.getElementById('notes').value,
+            status: 'Active',
+            username: currentUser.username,
+            date: new Date().toISOString().split('T')[0]
+        };
+        cases.push(newCase);
+        showAlert('تم إضافة الحالة بنجاح', 'success');
+        document.getElementById('caseForm').reset();
+        document.getElementById('latitude').value = '';
+        document.getElementById('longitude').value = '';
+        if (selectedMarker) { map.removeLayer(selectedMarker); selectedMarker = null; }
+        loadCases();
+    }
+    
+    function loadCases() {
+        if (!map) return;
+        map.eachLayer(layer => {
+            if (layer instanceof L.Marker && layer !== selectedMarker) map.removeLayer(layer);
+        });
+        const diseaseCount = {}, govCount = {};
+        cases.forEach(c => {
+            const color = getColorForDisease(c.disease);
+            const marker = L.marker([c.latitude, c.longitude], {
+                icon: L.icon({
+                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                })
+            }).addTo(map);
+            marker.bindPopup(`
+                <strong>المرض:</strong> ${c.disease}<br>
+                <strong>المحافظة:</strong> ${c.governorate}<br>
+                <strong>الحالة:</strong> ${c.status === 'Active' ? 'نشط' : (c.status === 'Recovered' ? 'تم الشفاء' : 'متوفى')}<br>
+                <strong>التاريخ:</strong> ${c.date}<br>
+                ${c.notes ? '<strong>ملاحظات:</strong> ' + c.notes : ''}
+            `);
+            diseaseCount[c.disease] = (diseaseCount[c.disease] || 0) + 1;
+            govCount[c.governorate] = (govCount[c.governorate] || 0) + 1;
+        });
+        let statsHTML = `<div class="stat-card"><h3>${cases.length}</h3><p>إجمالي الحالات</p></div>`;
+        for (let d in diseaseCount) {
+            statsHTML += `<div class="stat-card"><h3>${diseaseCount[d]}</h3><p>${d}</p></div>`;
+        }
+        document.getElementById('stats').innerHTML = statsHTML;
+    }
+    
+    function loadAdminTable() {
+        const tbody = document.getElementById('adminTableBody');
+        tbody.innerHTML = '';
+        cases.forEach((c, idx) => {
+            const statusText = c.status === 'Active' ? 'نشط' : (c.status === 'Recovered' ? 'تم الشفاء' : 'متوفى');
+            const statusClass = `status-badge status-${c.status.toLowerCase()}`;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${idx+1}</td>
+                <td>${c.disease}</td>
+                <td>${c.governorate}</td>
+                <td><span class="${statusClass}">${statusText}</span></td>
+                <td>${c.username}</td>
+                <td>${c.date}</td>
+                <td>${c.notes || '-'}</td>
+                <td>
+                    <button onclick="openEditModal(${c.id})" class="btn" style="padding:0.3rem 0.8rem; margin-left:0.5rem;">تعديل</button>
+                    <button onclick="deleteCase(${c.id})" class="btn btn-danger" style="padding:0.3rem 0.8rem;">حذف</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+    
+    function deleteCase(id) {
+        if (!confirm('هل أنت متأكد من حذف هذه الحالة؟')) return;
+        cases = cases.filter(c => c.id !== id);
+        showAlert('تم حذف الحالة بنجاح', 'success');
+        loadAdminTable();
+        if (map) loadCases();
+    }
+    
+    function openEditModal(id) {
+        const caseData = cases.find(c => c.id === id);
+        if (!caseData) return;
+        document.getElementById('editCaseId').value = id;
+        document.getElementById('editStatus').value = caseData.status;
+        document.getElementById('editNotes').value = caseData.notes || '';
+        document.getElementById('editModal').classList.add('active');
+    }
+    
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('active');
+    }
+    
+    function updateCase(e) {
+        e.preventDefault();
+        const id = parseInt(document.getElementById('editCaseId').value);
+        const status = document.getElementById('editStatus').value;
+        const notes = document.getElementById('editNotes').value;
+        const index = cases.findIndex(c => c.id === id);
+        if (index === -1) return;
+        cases[index].status = status;
+        cases[index].notes = notes;
+        showAlert('تم تحديث الحالة بنجاح', 'success');
+        closeEditModal();
+        loadAdminTable();
+        if (map) loadCases();
+    }
+    
+    document.getElementById('editModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('editModal')) closeEditModal();
+    });
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        showLogin();
+        document.getElementById('backBtn').classList.remove('show');
+    });
+</script>
+</body>
+</html>

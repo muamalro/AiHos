@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار عمى الألوان - اختبار إيشيهارا</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f5f7;
+            color: #1f2a44;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(31,42,68,0.06);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #1f2a44;
+            font-size: 1.8rem;
+            font-family: 'Georgia', serif;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #5a6874;
+            font-size: 1rem;
+        }
+
+        .test-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .ishihara-plate {
+            width: 350px;
+            height: 350px;
+            border: 3px solid #c9a24b;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(31,42,68,0.15);
+        }
+
+        .ishihara-plate img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .answer-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .answer-section h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #1f2a44;
+            font-weight: 700;
+        }
+
+        .answer-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 22px;
+            font-size: 1rem;
+            background: #ffffff;
+            color: #1f2a44;
+            border: 1px solid #c9a24b;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #1f2a44;
+            color: white;
+            transform: translateY(-2px);
+            border-color: #1f2a44;
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            text-align: center;
+            padding: 18px;
+            margin: 20px 0;
+            border-radius: 20px;
+            background: #fafafc;
+            font-weight: bold;
+            font-size: 1rem;
+            border-right: 5px solid;
+        }
+
+        .result.correct {
+            border-right-color: #2ecc71;
+            color: #2e7d32;
+            background: #e8f5e9;
+        }
+
+        .result.incorrect {
+            border-right-color: #e74c3c;
+            color: #c0392b;
+            background: #ffebee;
+        }
+
+        .progress {
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1f2a44;
+            background: #fef9e6;
+            padding: 10px;
+            border-radius: 40px;
+            border: 1px solid #ffe0b3;
+        }
+
+        .info-box {
+            background: #fef9e6;
+            border: 1px solid #ffe0b3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 20px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 12px;
+            color: #1f2a44;
+            font-size: 1.2rem;
+            border-right: 3px solid #c9a24b;
+            padding-right: 12px;
+        }
+
+        .info-box ul {
+            margin-right: 20px;
+            color: #4b5e6b;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+        }
+
+        .next-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 32px;
+            font-size: 1.1rem;
+            background: #1f2a44;
+            color: white;
+            border: none;
+            border-radius: 40px;
+        }
+        .next-btn:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+        }
+
+        .final-score {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            background: #ffffff;
+        }
+        .final-score h2 {
+            color: #1f2a44;
+            margin-bottom: 15px;
+        }
+
+        /* شاشة الانترو */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #intro img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+        @media (max-width: 768px) {
+            #intro img { max-width: 90%; }
+            .ishihara-plate { width: 280px; height: 280px; }
+            h1 { font-size: 1.5rem; }
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1f2a44;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 18px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+            transition: all 0.25s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .back-button:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+    <img src="R (1).gif" alt="Intro GIF">
+</div>
+<script>
+    setTimeout(() => {
+        const intro = document.getElementById('intro');
+        if (intro) intro.style.display = 'none';
+    }, 5000);
+</script>
+
+<button onclick="history.back()" class="back-button">← رجوع</button>
+
+<div class="container">
+    <h1>🔍 اختبار عمى الألوان</h1>
+    <p class="subtitle">اختبار إيشيهارا لفحص رؤية الألوان</p>
+
+    <div class="info-box">
+        <h3>تعليمات الاختبار</h3>
+        <ul>
+            <li>انظر إلى الدائرة الملونة وحاول تحديد الرقم بداخلها</li>
+            <li>اختر الرقم الذي تراه من الخيارات المتاحة</li>
+            <li>إذا لم ترَ أي رقم، اختر "لا أرى رقماً"</li>
+            <li>يحتوي الاختبار على 5 لوحات مختلفة</li>
+            <li>هذا اختبار فحصي وليس تشخيصاً طبياً</li>
+        </ul>
+    </div>
+
+    <div class="progress" id="progress">السؤال 1 من 5</div>
+
+    <div class="test-area">
+        <div class="ishihara-plate">
+            <img id="ishiharaImage" src="" alt="لوحة اختبار إيشيهارا">
+        </div>
+    </div>
+
+    <div class="answer-section">
+        <h3>ما الرقم الذي تراه؟</h3>
+        <div class="answer-buttons" id="answerButtons"></div>
+    </div>
+
+    <div id="result"></div>
+    <button id="nextBtn" class="next-btn" style="display: none;">➡ السؤال التالي</button>
+</div>
+
+<script>
+    const tests = [
+        {
+            image: '1.jpg',
+            number: 1,
+            options: [1, 5, 8, "لا أرى رقماً"],
+            description: 'اختبار الأحمر-الأخضر'
+        },
+        {
+            image: '4.jpg',
+            number: 4,
+            options: [74, 4, 71, "لا أرى رقماً"],
+            description: 'اختبار الأحمر-الأخضر'
+        },
+        {
+            image: '8.jpg',
+            number: 8,
+            options: [45, 8, 44, "لا أرى رقماً"],
+            description: 'اختبار الأحمر-الأخضر'
+        },
+        {
+            image: '9.jpg',
+            number: 9,
+            options: [12, 9, 17, "لا أرى رقماً"],
+            description: 'اختبار الأحمر-الأخضر'
+        },
+        {
+            image: '12.jpg',
+            number: 12,
+            options: [29, 12, 20, "لا أرى رقماً"],
+            description: 'اختبار الأحمر-الأخضر'
+        }
+    ];
+
+    let currentTest = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadTest() {
+        if (currentTest >= tests.length) {
+            showFinalScore();
+            return;
+        }
+
+        answered = false;
+        const test = tests[currentTest];
+        
+        document.getElementById('progress').textContent = `السؤال ${currentTest + 1} من ${tests.length}`;
+        document.getElementById('ishiharaImage').src = test.image;
+        
+        const buttonsDiv = document.getElementById('answerButtons');
+        buttonsDiv.innerHTML = '';
+        
+        test.options.forEach(option => {
+            const btn = document.createElement('button');
+            btn.textContent = option;
+            btn.onclick = () => checkAnswer(option);
+            buttonsDiv.appendChild(btn);
+        });
+
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function checkAnswer(answer) {
+        if (answered) return;
+        answered = true;
+
+        const test = tests[currentTest];
+        const resultDiv = document.getElementById('result');
+        const nextBtn = document.getElementById('nextBtn');
+
+        if (answer === test.number) {
+            score++;
+            resultDiv.innerHTML = '<div class="result correct">✅ إجابة صحيحة!</div>';
+        } else {
+            resultDiv.innerHTML = `<div class="result incorrect">❌ إجابة خاطئة!<br>الرقم الصحيح هو: ${test.number}</div>`;
+        }
+
+        nextBtn.style.display = 'block';
+    }
+
+    function showFinalScore() {
+        const container = document.querySelector('.container');
+        const percentage = (score / tests.length * 100).toFixed(0);
+        
+        let message = '';
+        let advice = '';
+        
+        if (percentage >= 80) {
+            message = 'ممتاز! يبدو أن رؤية الألوان لديك طبيعية';
+            advice = 'نتائجك تشير إلى عدم وجود خلل كبير في رؤية الألوان. يبقى الفحص الدوري لدى طبيب العيون مفيداً.';
+        } else if (percentage >= 60) {
+            message = 'قد يكون لديك خلل بسيط في رؤية الألوان';
+            advice = 'نوصي باستشارة أخصائي العيون لإجراء فحص شامل.';
+        } else {
+            message = 'يبدو أنك تعاني من عمى ألوان محتمل';
+            advice = 'نوصي بشدة بزيارة طبيب العيون لإجراء تقييم كامل للحالة.';
+        }
+
+        container.innerHTML = `
+            <h1>📊 نتيجة الاختبار</h1>
+            <div class="final-score">
+                <h2>${message}</h2>
+                <p style="font-size: 48px; margin: 20px 0; font-weight: bold; color: #c9a24b;">${score} / ${tests.length}</p>
+                <p style="font-size: 20px; margin: 20px 0; font-weight: bold;">نسبة النجاح: ${percentage}%</p>
+                <p style="font-size: 16px; margin-top: 20px; color: #4a5b6e;">${advice}</p>
+            </div>
+            <div class="info-box">
+                <h3>ℹ️ معلومات عن عمى الألوان</h3>
+                <ul>
+                    <li><strong>عمى الألوان الأحمر-الأخضر:</strong> الأكثر شيوعاً، يصيب حوالي 8% من الرجال و 0.5% من النساء</li>
+                    <li><strong>عمى الألوان الأزرق-الأصفر:</strong> نادر نسبياً</li>
+                    <li><strong>عمى الألوان الكامل:</strong> حالة نادرة جداً</li>
+                    <li><strong>العامل الوراثي:</strong> عادة ما يكون وراثياً، ينتقل من الآباء إلى الأبناء</li>
+                    <li><strong>هذا الاختبار:</strong> لأغراض الفحص فقط وليس تشخيصاً طبياً</li>
+                    <li><strong>التشخيص المهني:</strong> استشر طبيب العيون دائماً للحصول على تشخيص دقيق</li>
+                </ul>
+            </div>
+            <button onclick="location.reload()" class="next-btn" style="background:#1f2a44; color:white;">🔄 إعادة الاختبار</button>
+        `;
+    }
+
+    document.getElementById('nextBtn').onclick = () => {
+        currentTest++;
+        loadTest();
+    };
+
+    loadTest();
+</script>
+</body>
+</html>

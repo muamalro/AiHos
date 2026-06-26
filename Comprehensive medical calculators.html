@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الآلات الحاسبة الطبية الشاملة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f5f7;
+            min-height: 100vh;
+            padding: 20px;
+            color: #1f2a44;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: #1f2a44;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+            transform: translateY(-2px);
+        }
+
+        h1 {
+            color: #1f2a44;
+            text-align: center;
+            font-size: 2rem;
+            font-family: 'Georgia', serif;
+            font-weight: 700;
+            flex-grow: 1;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .tab {
+            background: #ffffff;
+            color: #1f2a44;
+            padding: 10px 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            background: #c9a24b;
+            border-color: #c9a24b;
+            color: #1f2a44;
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: #1f2a44;
+            border-color: #1f2a44;
+            color: white;
+        }
+
+        .calculator {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(31,42,68,0.06);
+            border: 1px solid #e5e7eb;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .calculator.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .calculator h2 {
+            color: #1f2a44;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            border-right: 4px solid #c9a24b;
+            padding-right: 15px;
+            margin-right: auto;
+            margin-left: auto;
+            width: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1f2a44;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+            color: #1f2a44;
+        }
+
+        input:focus, select:focus {
+            border-color: #c9a24b;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(201,162,75,0.2);
+        }
+
+        .btn {
+            background: #1f2a44;
+            color: white;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            width: 100%;
+            transition: all 0.25s;
+        }
+
+        .btn:hover {
+            background: #2a3a5e;
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 20px;
+            background: #fafafc;
+            border-right: 5px solid #c9a24b;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-15px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .result h3 {
+            color: #1f2a44;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .result-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #c9a24b;
+            margin-bottom: 10px;
+        }
+
+        .result-category {
+            padding: 5px 15px;
+            border-radius: 30px;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .underweight { background: #3498db; }
+        .normal { background: #2ecc71; }
+        .overweight { background: #f39c12; }
+        .obese { background: #e74c3c; }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            .tabs {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .tab {
+                text-align: center;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .header {
+                flex-direction: column;
+            }
+        }
+
+        .water-tracker {
+            text-align: center;
+        }
+
+        .water-display {
+            font-size: 2.8rem;
+            margin: 20px 0;
+            color: #c9a24b;
+            font-weight: bold;
+        }
+
+        .water-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .water-btn {
+            background: #1f2a44;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .water-btn:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+            transform: scale(1.02);
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            border-radius: 12px;
+            height: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #c9a24b, #e0bc7a);
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.4s ease;
+        }
+
+        /* شاشة الانترو */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #intro img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+        @media (max-width: 768px) {
+            #intro img { max-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+    <img src="R (1).gif" alt="Intro GIF">
+</div>
+<script>
+    setTimeout(() => {
+        const intro = document.getElementById('intro');
+        if (intro) intro.style.display = 'none';
+    }, 5000);
+</script>
+
+<div class="container">
+    <div class="header">
+        <button class="back-btn" onclick="history.back()">← رجوع</button>
+        <h1>🩺 الآلات الحاسبة الطبية الشاملة</h1>
+        <div></div> <!-- فراغ للمحاذاة -->
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="showCalculator('bmi')">مؤشر كتلة الجسم</button>
+        <button class="tab" onclick="showCalculator('calories')">السعرات اليومية</button>
+        <button class="tab" onclick="showCalculator('water')">تتبع شرب الماء</button>
+        <button class="tab" onclick="showCalculator('bmr')">معدل الأيض الأساسي</button>
+        <button class="tab" onclick="showCalculator('pregnancy')">حاسبة الحمل</button>
+        <button class="tab" onclick="showCalculator('bp')">ضغط الدم</button>
+    </div>
+
+    <!-- BMI -->
+    <div id="bmi" class="calculator active">
+        <h2>📊 حساب مؤشر كتلة الجسم (BMI)</h2>
+        <div class="two-columns">
+            <div class="form-group">
+                <label>الطول (سم):</label>
+                <input type="number" id="height" placeholder="مثال: 170">
+            </div>
+            <div class="form-group">
+                <label>الوزن (كجم):</label>
+                <input type="number" id="weight" placeholder="مثال: 70">
+            </div>
+        </div>
+        <button class="btn" onclick="calculateBMI()">احسب BMI</button>
+        <div id="bmiResult" class="result">
+            <h3>نتيجة BMI:</h3>
+            <div id="bmiValue" class="result-value"></div>
+            <div id="bmiCategory" class="result-category"></div>
+            <p id="bmiAdvice"></p>
+        </div>
+    </div>
+
+    <!-- السعرات -->
+    <div id="calories" class="calculator">
+        <h2>🍽️ حساب السعرات اليومية</h2>
+        <div class="two-columns">
+            <div class="form-group">
+                <label>العمر:</label>
+                <input type="number" id="calAge" placeholder="مثال: 25">
+            </div>
+            <div class="form-group">
+                <label>الجنس:</label>
+                <select id="calGender">
+                    <option value="male">ذكر</option>
+                    <option value="female">أنثى</option>
+                </select>
+            </div>
+        </div>
+        <div class="two-columns">
+            <div class="form-group">
+                <label>الطول (سم):</label>
+                <input type="number" id="calHeight" placeholder="مثال: 170">
+            </div>
+            <div class="form-group">
+                <label>الوزن (كجم):</label>
+                <input type="number" id="calWeight" placeholder="مثال: 70">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>مستوى النشاط:</label>
+            <select id="activity">
+                <option value="1.2">خامل (عمل مكتبي، لا رياضة)</option>
+                <option value="1.375">نشاط خفيف (رياضة 1-3 أيام)</option>
+                <option value="1.55">نشاط متوسط (رياضة 3-5 أيام)</option>
+                <option value="1.725">نشاط عالٍ (رياضة 6-7 أيام)</option>
+                <option value="1.9">نشاط مكثف (رياضة يومية)</option>
+            </select>
+        </div>
+        <button class="btn" onclick="calculateCalories()">احسب السعرات</button>
+        <div id="caloriesResult" class="result">
+            <h3>السعرات اليومية المطلوبة:</h3>
+            <div id="caloriesValue" class="result-value"></div>
+            <p id="caloriesAdvice"></p>
+        </div>
+    </div>
+
+    <!-- تتبع الماء -->
+    <div id="water" class="calculator">
+        <h2>💧 تتبع شرب الماء اليومي</h2>
+        <div class="water-tracker">
+            <div class="water-display">
+                <span id="waterAmount">0</span> مل
+            </div>
+            <div class="progress-bar">
+                <div id="waterProgress" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <p>الهدف اليومي: <span id="dailyGoal">2000</span> مل</p>
+            <div class="water-buttons">
+                <button class="water-btn" onclick="addWater(250)">كوب صغير (250 مل)</button>
+                <button class="water-btn" onclick="addWater(500)">كوب كبير (500 مل)</button>
+                <button class="water-btn" onclick="addWater(1000)">زجاجة (1 لتر)</button>
+                <button class="water-btn" onclick="resetWater()">إعادة تعيين</button>
+            </div>
+            <div id="waterMessage" style="margin-top: 20px; font-weight: bold;"></div>
+        </div>
+    </div>
+
+    <!-- BMR -->
+    <div id="bmr" class="calculator">
+        <h2>🔥 معدل الأيض الأساسي (BMR)</h2>
+        <div class="two-columns">
+            <div class="form-group">
+                <label>العمر:</label>
+                <input type="number" id="bmrAge" placeholder="مثال: 25">
+            </div>
+            <div class="form-group">
+                <label>الجنس:</label>
+                <select id="bmrGender">
+                    <option value="male">ذكر</option>
+                    <option value="female">أنثى</option>
+                </select>
+            </div>
+        </div>
+        <div class="two-columns">
+            <div class="form-group">
+                <label>الطول (سم):</label>
+                <input type="number" id="bmrHeight" placeholder="مثال: 170">
+            </div>
+            <div class="form-group">
+                <label>الوزن (كجم):</label>
+                <input type="number" id="bmrWeight" placeholder="مثال: 70">
+            </div>
+        </div>
+        <button class="btn" onclick="calculateBMR()">احسب BMR</button>
+        <div id="bmrResult" class="result">
+            <h3>معدل الأيض الأساسي:</h3>
+            <div id="bmrValue" class="result-value"></div>
+            <p>هذا هو عدد السعرات التي يحرقها جسمك في حالة الراحة التامة.</p>
+        </div>
+    </div>
+
+    <!-- الحمل -->
+    <div id="pregnancy" class="calculator">
+        <h2>🤰 حاسبة موعد الولادة</h2>
+        <div class="form-group">
+            <label>تاريخ أول يوم لآخر دورة شهرية:</label>
+            <input type="date" id="lastPeriod">
+        </div>
+        <button class="btn" onclick="calculatePregnancy()">احسب موعد الولادة</button>
+        <div id="pregnancyResult" class="result">
+            <h3>تفاصيل الحمل:</h3>
+            <div id="dueDate" class="result-value"></div>
+            <p id="pregnancyWeeks"></p>
+            <p id="remainingDays"></p>
+        </div>
+    </div>
+
+    <!-- ضغط الدم -->
+    <div id="bp" class="calculator">
+        <h2>❤️ تحليل ضغط الدم</h2>
+        <div class="two-columns">
+            <div class="form-group">
+                <label>الضغط الانقباضي (العلوي):</label>
+                <input type="number" id="systolic" placeholder="مثال: 120">
+            </div>
+            <div class="form-group">
+                <label>الضغط الانبساطي (السفلي):</label>
+                <input type="number" id="diastolic" placeholder="مثال: 80">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>العمر:</label>
+            <input type="number" id="bpAge" placeholder="مثال: 30">
+        </div>
+        <button class="btn" onclick="analyzeBP()">حلل ضغط الدم</button>
+        <div id="bpResult" class="result">
+            <h3>نتيجة تحليل ضغط الدم:</h3>
+            <div id="bpCategory" class="result-category"></div>
+            <p id="bpAdvice"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentWater = 0;
+    const dailyGoal = 2000;
+
+    function showCalculator(calculatorId) {
+        document.querySelectorAll('.calculator').forEach(calc => calc.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(calculatorId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function calculateBMI() {
+        const height = parseFloat(document.getElementById('height').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+        if (!height || !weight) { alert('الرجاء إدخال الطول والوزن'); return; }
+        const bmi = weight / Math.pow(height / 100, 2);
+        const result = document.getElementById('bmiResult');
+        document.getElementById('bmiValue').textContent = bmi.toFixed(1);
+        const cat = document.getElementById('bmiCategory');
+        const adv = document.getElementById('bmiAdvice');
+        if (bmi < 18.5) {
+            cat.textContent = 'نقص وزن';
+            cat.className = 'result-category underweight';
+            adv.textContent = 'يُنصح بزيادة الوزن تدريجياً من خلال نظام غذائي صحي';
+        } else if (bmi < 25) {
+            cat.textContent = 'وزن طبيعي';
+            cat.className = 'result-category normal';
+            adv.textContent = 'وزنك مثالي! حافظ على نظامك الغذائي ونشاطك البدني';
+        } else if (bmi < 30) {
+            cat.textContent = 'زيادة وزن';
+            cat.className = 'result-category overweight';
+            adv.textContent = 'يُنصح بممارسة الرياضة واتباع نظام غذائي متوازن';
+        } else {
+            cat.textContent = 'سمنة';
+            cat.className = 'result-category obese';
+            adv.textContent = 'استشر أخصائي صحي لوضع خطة لإنقاص الوزن';
+        }
+        result.classList.add('show');
+    }
+
+    function calculateCalories() {
+        const age = parseInt(document.getElementById('calAge').value);
+        const gender = document.getElementById('calGender').value;
+        const height = parseFloat(document.getElementById('calHeight').value);
+        const weight = parseFloat(document.getElementById('calWeight').value);
+        const activity = parseFloat(document.getElementById('activity').value);
+        if (!age || !height || !weight) { alert('الرجاء إدخال جميع البيانات'); return; }
+        let bmr;
+        if (gender === 'male') {
+            bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+        } else {
+            bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+        }
+        const calories = Math.round(bmr * activity);
+        document.getElementById('caloriesValue').textContent = calories + ' سعرة حرارية';
+        document.getElementById('caloriesAdvice').innerHTML = `للمحافظة على وزنك الحالي تحتاج ${calories} سعرة يومياً.<br>لإنقاص الوزن: ${calories - 500} سعرة، لزيادة الوزن: ${calories + 500} سعرة.`;
+        document.getElementById('caloriesResult').classList.add('show');
+    }
+
+    function addWater(amount) {
+        currentWater += amount;
+        if (currentWater > dailyGoal * 1.5) currentWater = dailyGoal * 1.5;
+        updateWaterDisplay();
+    }
+
+    function resetWater() {
+        currentWater = 0;
+        updateWaterDisplay();
+    }
+
+    function updateWaterDisplay() {
+        document.getElementById('waterAmount').textContent = currentWater;
+        const percent = Math.min((currentWater / dailyGoal) * 100, 100);
+        document.getElementById('waterProgress').style.width = percent + '%';
+        const msg = document.getElementById('waterMessage');
+        if (currentWater >= dailyGoal) {
+            msg.textContent = '🎉 ممتاز! لقد وصلت إلى هدفك اليومي';
+            msg.style.color = '#2ecc71';
+        } else if (currentWater >= dailyGoal * 0.75) {
+            msg.textContent = '✅ قريب من الهدف! استمر';
+            msg.style.color = '#f39c12';
+        } else {
+            msg.textContent = '💧 تحتاج إلى شرب المزيد من الماء';
+            msg.style.color = '#e74c3c';
+        }
+    }
+
+    function calculateBMR() {
+        const age = parseInt(document.getElementById('bmrAge').value);
+        const gender = document.getElementById('bmrGender').value;
+        const height = parseFloat(document.getElementById('bmrHeight').value);
+        const weight = parseFloat(document.getElementById('bmrWeight').value);
+        if (!age || !height || !weight) { alert('الرجاء إدخال جميع البيانات'); return; }
+        let bmr;
+        if (gender === 'male') {
+            bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+        } else {
+            bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+        }
+        document.getElementById('bmrValue').textContent = Math.round(bmr) + ' سعرة/يوم';
+        document.getElementById('bmrResult').classList.add('show');
+    }
+
+    function calculatePregnancy() {
+        const lastPeriod = new Date(document.getElementById('lastPeriod').value);
+        if (!lastPeriod || isNaN(lastPeriod)) { alert('الرجاء إدخال تاريخ صحيح'); return; }
+        const today = new Date();
+        const dueDate = new Date(lastPeriod);
+        dueDate.setDate(dueDate.getDate() + 280);
+        const diffTime = today - lastPeriod;
+        const weeksPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+        const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        const remaining = dueDate - today;
+        const remainingDays = Math.ceil(remaining / (1000 * 60 * 60 * 24));
+        document.getElementById('dueDate').textContent = 'تاريخ الولادة المتوقع: ' + dueDate.toLocaleDateString('ar-EG');
+        document.getElementById('pregnancyWeeks').textContent = `أنتِ في الأسبوع ${weeksPassed} من الحمل (${daysPassed} يوم)`;
+        document.getElementById('remainingDays').textContent = remainingDays > 0 ? `${remainingDays} يوم متبقي` : 'لقد حان موعد الولادة أو تجاوزه';
+        document.getElementById('pregnancyResult').classList.add('show');
+    }
+
+    function analyzeBP() {
+        const systolic = parseInt(document.getElementById('systolic').value);
+        const diastolic = parseInt(document.getElementById('diastolic').value);
+        const age = parseInt(document.getElementById('bpAge').value);
+        if (!systolic || !diastolic || !age) { alert('الرجاء إدخال جميع البيانات'); return; }
+        const cat = document.getElementById('bpCategory');
+        const adv = document.getElementById('bpAdvice');
+        if (systolic < 120 && diastolic < 80) {
+            cat.textContent = 'ضغط طبيعي';
+            cat.className = 'result-category normal';
+            adv.textContent = 'ضغط الدم طبيعي. حافظ على نمط حياة صحي';
+        } else if (systolic < 130 && diastolic < 80) {
+            cat.textContent = 'ضغط مرتفع (حدودي)';
+            cat.className = 'result-category overweight';
+            adv.textContent = 'ارتفاع بسيط. راقب نظامك الغذائي وقلل الملح';
+        } else if (systolic < 140 || diastolic < 90) {
+            cat.textContent = 'ارتفاع ضغط الدم - المرحلة 1';
+            cat.className = 'result-category obese';
+            adv.textContent = 'ارتفاع ضغط الدم. استشر الطبيب واتبع نظاماً قليل الملح';
+        } else {
+            cat.textContent = 'ارتفاع ضغط الدم - المرحلة 2';
+            cat.className = 'result-category obese';
+            adv.textContent = 'ارتفاع شديد. راجع الطبيب فوراً والتزم بالأدوية';
+        }
+        document.getElementById('bpResult').classList.add('show');
+    }
+</script>
+</body>
+</html>

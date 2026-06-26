@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النموذج ثلاثي الأبعاد للمعدة - تشريح تفاعلي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f4f5f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #1f2a44;
+            border-radius: 20px;
+            width: 100%;
+            box-shadow: 0 6px 14px rgba(31, 42, 68, 0.15);
+            border-bottom: 3px solid #c9a24b;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-family: 'Georgia', serif;
+        }
+        
+        .description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #e0e6ed;
+        }
+        
+        .model-container {
+            position: relative;
+            width: 100%;
+            height: 65vh;
+            min-height: 450px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(31, 42, 68, 0.15);
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
+        
+        .model-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .back-button {
+            display: inline-block;
+            padding: 12px 28px;
+            background: #1f2a44;
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            border: 1px solid #c9a24b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        
+        .back-button:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+            transform: translateY(-2px);
+        }
+        
+        .info-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 20px;
+            margin-top: 25px;
+            border: 1px solid #e5e7eb;
+            text-align: right;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .info-card h2 {
+            color: #1f2a44;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            border-right: 4px solid #c9a24b;
+            padding-right: 12px;
+        }
+        
+        .info-card h3 {
+            color: #c9a24b;
+            font-size: 1rem;
+            margin: 12px 0 6px 0;
+        }
+        
+        .info-card ul {
+            padding-right: 20px;
+        }
+        
+        .info-card li {
+            margin-bottom: 6px;
+            color: #4a5b6e;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.4rem; }
+            .model-container { height: 50vh; min-height: 350px; }
+            .back-button { padding: 8px 20px; font-size: 0.9rem; }
+        }
+        
+        /* شاشة الانترو */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #intro img {
+            width: 100%;
+            height: auto;
+            max-width: 500px;
+        }
+        @media (max-width: 768px) {
+            #intro img { max-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة الانترو - تأكد من وجود ملف R.gif في نفس المجلد أو غيره -->
+<div id="intro">
+    <img src="R.gif" alt="Intro GIF" onerror="this.style.display='none'; document.getElementById('intro').style.display='none';">
+</div>
+<script>
+    setTimeout(() => {
+        const intro = document.getElementById('intro');
+        if (intro) intro.style.display = 'none';
+    }, 4000);
+</script>
+
+<div class="container">
+    <header>
+        <h1>🧬 النموذج ثلاثي الأبعاد للمعدة (مقطع عرضي)</h1>
+        <p class="description">
+            نموذج تفاعلي ثلاثي الأبعاد يظهر المقطع العرضي للمعدة البشرية. يمكنك التدوير والتكبير لفحص الطبقات والهياكل الداخلية.
+        </p>
+    </header>
+    
+    <div class="model-container">
+        <iframe 
+            title="تشريح المعدة ثلاثي الأبعاد" 
+            allowfullscreen 
+            allow="autoplay; fullscreen; xr-spatial-tracking" 
+            src="https://sketchfab.com/models/7148476c702340aab6a6579124103ea9/embed?ui_watermark=0&ui_infos=0&ui_settings=0&ui_help=0&autostart=0">
+        </iframe>
+    </div>
+    
+    <button class="back-button" onclick="goBack()">← العودة إلى الصفحة السابقة</button>
+    
+    <div class="info-card">
+        <h2>📖 معلومات تشريحية</h2>
+        <h3>المناطق الرئيسية للمعدة:</h3>
+        <ul>
+            <li><strong>الفؤاد (Cardia)</strong> - مدخل المعدة من المريء</li>
+            <li><strong>القاع (Fundus)</strong> - الجزء العلوي المقبب</li>
+            <li><strong>الجسم (Body)</strong> - المنطقة الوسطى الكبرى</li>
+            <li><strong>البواب (Pylorus)</strong> - مخرج المعدة إلى الاثني عشر</li>
+        </ul>
+        <h3>طبقات جدار المعدة:</h3>
+        <ul>
+            <li><strong>المخاطية (Mucosa)</strong> - تحتوي على الغدد الهاضمة</li>
+            <li><strong>تحت المخاطية (Submucosa)</strong> - أوعية دموية وأعصاب</li>
+            <li><strong>العضلية (Muscularis)</strong> - حركة وخلط الطعام</li>
+            <li><strong>المصلية (Serosa)</strong> - الغطاء الخارجي</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function goBack() {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = 'main.html';
+        }
+    }
+</script>
+</body>
+</html>

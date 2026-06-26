@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التوليفات الدوائية المفيدة - أدوية تعمل بشكل أفضل معاً</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f5f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #1f2a44;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .back-button-container {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .back-button {
+            background: #1f2a44;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(31,42,68,0.2);
+        }
+
+        .back-button:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+            transform: translateY(-2px);
+        }
+
+        .back-arrow {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 30px;
+        }
+
+        h1 {
+            color: #1f2a44;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-family: 'Georgia', serif;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #5a6874;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background-color: #fef9e6;
+            border-right: 5px solid #c9a24b;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: #1f2a44;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .info-box p {
+            color: #4b5e6b;
+            font-weight: 500;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #1f2a44;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            border-right: 4px solid #c9a24b;
+            padding-right: 15px;
+            font-weight: 600;
+        }
+
+        .combination-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .combination-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 22px;
+            transition: all 0.25s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .combination-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(31,42,68,0.08);
+            border-color: #c9a24b;
+        }
+
+        .combination-card h3 {
+            color: #1f2a44;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .drug-combination {
+            background-color: #fafafc;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            border-right: 3px solid #c9a24b;
+        }
+
+        .drug-names {
+            font-weight: bold;
+            color: #1f2a44;
+            margin-bottom: 6px;
+        }
+
+        .benefit-description {
+            color: #4a5b6e;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .benefit-level {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .synergistic {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .protective {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #90caf9;
+        }
+
+        .enhanced-efficacy {
+            background-color: #fff8e1;
+            color: #b76e00;
+            border: 1px solid #ffe082;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.2s;
+            background: white;
+            color: #1f2a44;
+        }
+
+        .search-input:focus {
+            border-color: #c9a24b;
+            box-shadow: 0 0 0 3px rgba(201,162,75,0.2);
+        }
+
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .tab-button {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1f2a44;
+        }
+
+        .tab-button.active {
+            background-color: #1f2a44;
+            border-color: #1f2a44;
+            color: white;
+        }
+
+        .tab-button:hover {
+            background-color: #c9a24b;
+            border-color: #c9a24b;
+            color: #1f2a44;
+        }
+
+        .guidelines-section {
+            background-color: #ffffff;
+            border-radius: 24px;
+            padding: 30px;
+            margin-top: 40px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .guidelines-section h2 {
+            color: #1f2a44;
+            border-right-color: #c9a24b;
+        }
+
+        .guideline-list {
+            list-style: none;
+            padding-right: 0;
+        }
+
+        .guideline-list li {
+            margin-bottom: 14px;
+            padding-right: 28px;
+            position: relative;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+
+        .guideline-list li::before {
+            content: "✓";
+            position: absolute;
+            right: 0;
+            color: #c9a24b;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
+            color: #7c8b9c;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            h1 { font-size: 1.8rem; }
+            .combination-grid { grid-template-columns: 1fr; }
+            .category-tabs { flex-direction: column; align-items: stretch; }
+            .tab-button { text-align: center; }
+        }
+
+        /* شاشة الانترو */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #intro img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+        @media (max-width: 768px) {
+            #intro img { max-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+    <img src="R (1).gif" alt="Intro GIF">
+</div>
+<script>
+    setTimeout(() => {
+        const intro = document.getElementById('intro');
+        if (intro) intro.style.display = 'none';
+    }, 5000);
+</script>
+
+<div class="container">
+    <div class="back-button-container">
+        <button onclick="history.back()" class="back-button">
+            <span class="back-arrow">←</span>
+            <span class="back-text">رجوع</span>
+        </button>
+    </div>
+
+    <header>
+        <h1>🧬 التوليفات الدوائية المفيدة</h1>
+        <p class="subtitle">أدوية تعمل معاً بشكل أفضل لتعزيز فعالية العلاج</p>
+    </header>
+
+    <div class="info-box">
+        <h3>📋 إشعار طبي هام</h3>
+        <p>هذه المعلومات لأغراض تعليمية فقط. جميع التوليفات الدوائية يجب أن يصفها ويشرف عليها أخصائيو الرعاية الصحية المؤهلون. لا تعالج نفسك بنفسك أو تجمع الأدوية دون إشراف طبي.</p>
+    </div>
+
+    <div class="search-box">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 ابحث عن دواء معين أو توليفة علاجية...">
+    </div>
+
+    <div class="category-tabs">
+        <button class="tab-button active" onclick="filterCategory('all')">جميع التوليفات</button>
+        <button class="tab-button" onclick="filterCategory('cardiovascular')">صحة القلب</button>
+        <button class="tab-button" onclick="filterCategory('antibiotics')">المضادات الحيوية</button>
+        <button class="tab-button" onclick="filterCategory('pain')">تسكين الألم</button>
+        <button class="tab-button" onclick="filterCategory('chronic')">الأمراض المزمنة</button>
+    </div>
+
+    <div class="section">
+        <h2>توليفات دوائية علاجية</h2>
+        <div class="combination-grid" id="combinationGrid">
+            
+            <div class="combination-card" data-category="cardiovascular">
+                <h3>علاج قصور القلب</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">مثبطات الإنزيم المحول للأنجيوتنسين + حاصرات بيتا</div>
+                    <div class="benefit-description">هذا المزيج يقلل عبء العمل على القلب ويحسن معدلات البقاء على قيد الحياة لمرضى قصور القلب. يكمل كل دواء آلية عمل الآخر.</div>
+                    <span class="benefit-level synergistic">تآزري</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="cardiovascular">
+                <h3>السيطرة على ارتفاع ضغط الدم</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">مثبطات الإنزيم المحول + مدرات البول</div>
+                    <div class="benefit-description">مدرات البول تعزز تأثير خفض ضغط الدم لمثبطات الإنزيم المحول مع تقليل احتباس السوائل. غالباً ما تُدمج في حبة واحدة.</div>
+                    <span class="benefit-level enhanced-efficacy">فعالية محسنة</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="antibiotics">
+                <h3>العدوى البكتيرية الشديدة</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">أموكسيسيلين + حمض الكلافولانيك</div>
+                    <div class="benefit-description">حمض الكلافولانيك يمنع البكتيريا من تدمير الأموكسيسيلين، مما يجعل المضاد الحيوي فعالاً ضد البكتيريا المقاومة.</div>
+                    <span class="benefit-level protective">وقائي</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="pain">
+                <h3>الألم والالتهاب</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">باراسيتامول + إيبوبروفين</div>
+                    <div class="benefit-description">يعملان عبر آليات مختلفة – أحدهما يمنع إشارات الألم والآخر يقلل الالتهاب. آمن عند الاستخدام حسب التوجيهات.</div>
+                    <span class="benefit-level synergistic">تآزري</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="chronic">
+                <h3>إدارة داء السكري</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">ميتفورمين + إنسولين</div>
+                    <div class="benefit-description">الميتفورمين يحسن حساسية الأنسولين بينما يوفر الأنسولين التحكم في سكر الدم. معاً يقدمان إدارة أفضل للسكري.</div>
+                    <span class="benefit-level enhanced-efficacy">فعالية محسنة</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="chronic">
+                <h3>حماية المعدة</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">مضادات الالتهاب غير الستيرويدية + مثبطات مضخة البروتون</div>
+                    <div class="benefit-description">مثبطات مضخة البروتون تحمي بطانة المعدة عند الحاجة لاستخدام مضادات الالتهاب لفترات طويلة، مما يمنع القرحة والنزيف المعدي.</div>
+                    <span class="benefit-level protective">وقائي</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="cardiovascular">
+                <h3>حماية الكوليسترول والقلب</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">ستاتينات + أسبرين منخفض الجرعة</div>
+                    <div class="benefit-description">الستاتينات تخفض الكوليسترول بينما الأسبرين يمنع الجلطات الدموية. معاً يقللان بشكل كبير من خطر النوبة القلبية.</div>
+                    <span class="benefit-level synergistic">تآزري</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="chronic">
+                <h3>الوقاية من هشاشة العظام</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">كالسيوم + فيتامين د</div>
+                    <div class="benefit-description">فيتامين د يعزز امتصاص الكالسيوم في الأمعاء. بدون فيتامين د، يكون مكمل الكالسيوم أقل فعالية بكثير.</div>
+                    <span class="benefit-level enhanced-efficacy">فعالية محسنة</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="antibiotics">
+                <h3>علاج فيروس نقص المناعة البشرية (HIV)</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">أدوية مضادة للفيروسات القهقرية متعددة</div>
+                    <div class="benefit-description">العلاج المركب يمنع تطور المقاومة ويحقق كبحاً فيروسياً أفضل من الأدوية المفردة.</div>
+                    <span class="benefit-level synergistic">تآزري</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="chronic">
+                <h3>امتصاص الحديد</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">مكملات الحديد + فيتامين ج</div>
+                    <div class="benefit-description">فيتامين ج يزيد بشكل كبير امتصاص الحديد من المكملات، مما يجعل علاج نقص الحديد أكثر فعالية.</div>
+                    <span class="benefit-level enhanced-efficacy">فعالية محسنة</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="pain">
+                <h3>علاج الشقيقة (الصداع النصفي)</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">سوماتريبتان + نابروكسين</div>
+                    <div class="benefit-description">هذا المزيج المعتمد من إدارة الغذاء والدواء يعالج كلاً من المكونات الوعائية والالتهابية للشقيقة بشكل أكثر فعالية من أي منهما بمفرده.</div>
+                    <span class="benefit-level synergistic">تآزري</span>
+                </div>
+            </div>
+
+            <div class="combination-card" data-category="chronic">
+                <h3>السيطرة على الربو</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">كورتيكوستيرويدات مستنشقة + ناهضات بيتا طويلة المفعول</div>
+                    <div class="benefit-description">الكورتيكوستيرويدات تقلل الالتهاب بينما تحافظ ناهضات بيتا على مجاري الهواء مفتوحة. أجهزة الاستنشاق المركبة تحسن الالتزام والتحكم.</div>
+                    <span class="benefit-level synergistic">تآزري</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="guidelines-section">
+        <h2>إرشادات التوليفات المفيدة</h2>
+        <ul class="guideline-list">
+            <li>استشر مقدم الرعاية الصحية دائمًا قبل الجمع بين أي أدوية، حتى لو كانت مفيدة</li>
+            <li>اتبع الجرعات الموصوفة بعناية – الأكثر ليس دائمًا أفضل</li>
+            <li>راقب أي آثار جانبية غير متوقعة عند بدء العلاج المركب</li>
+            <li>افهم أن التوليفات المفيدة يصفها الأطباء عادةً معًا</li>
+            <li>بعض التوليفات متاحة كحبة واحدة لتحسين الالتزام</li>
+            <li>توقيت تناول الدواء يمكن أن يكون مهمًا لتحقيق الفعالية المثلى</li>
+            <li>قد تكون المتابعة المنتظمة ضرورية لضمان استمرار السلامة والفعالية</li>
+            <li>أخبر جميع مقدمي الرعاية الصحية عن جميع الأدوية التي تتناولها</li>
+            <li>لا تتوقف أبدًا عن تناول التوليفات الموصوفة دون إشراف طبي</li>
+            <li>قم بتخزين الأدوية المركبة حسب التوجيهات للحفاظ على فعاليتها</li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>تذكر: يجب استخدام هذه التوليفات فقط تحت إشراف طبي. هذه المعلومات تعليمية وليست بديلاً عن الاستشارة الطبية المهنية.</p>
+    </footer>
+</div>
+
+<script>
+    // البحث
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.combination-card');
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(term) ? 'block' : 'none';
+        });
+    });
+
+    // تصفية حسب الفئة
+    function filterCategory(category) {
+        const cards = document.querySelectorAll('.combination-card');
+        const btns = document.querySelectorAll('.tab-button');
+        btns.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        cards.forEach(card => {
+            if (category === 'all' || card.dataset.category === category) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // تأثيرات إضافية
+    document.querySelectorAll('.combination-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.borderColor = '#c9a24b';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.borderColor = '#e5e7eb';
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مذكر الأدوية الذكي</title>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #00cec9 0%, #55a3ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .add-medicine-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            color: #2d3436;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #00cec9;
+            outline: none;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00cec9, #55a3ff);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            grid-column: span 2;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .medicine-list {
+            margin-top: 30px;
+        }
+
+        .medicine-card {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #00cec9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .medicine-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .medicine-info {
+            flex: 1;
+        }
+
+        .medicine-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 8px;
+        }
+
+        .medicine-details {
+            color: #636e72;
+            margin-bottom: 5px;
+        }
+
+        .medicine-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            background: #74b9ff;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-small:hover {
+            background: #0984e3;
+        }
+
+        .btn-danger {
+            background: #e84393;
+        }
+
+        .btn-danger:hover {
+            background: #d63384;
+        }
+
+        .notification-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 350px;
+            z-index: 1000;
+        }
+
+        .notification {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #00cec9;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.reminder {
+            border-left-color: #e84393;
+            background: linear-gradient(45deg, #fff, #fef7f7);
+        }
+
+        .notification-title {
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 8px;
+        }
+
+        .notification-time {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .tab {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tab.active {
+            background: white;
+            color: #00cec9;
+            font-weight: bold;
+        }
+
+        .today-schedule {
+            background: #e8f8f5;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #00cec9;
+        }
+
+        .schedule-time {
+            font-weight: bold;
+            color: #00cec9;
+        }
+
+        .taken-checkbox {
+            transform: scale(1.5);
+            margin-right: 10px;
+        }
+
+        .taken {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .overdue {
+            border-left-color: #e84393;
+            background: #fef7f7;
+        }
+
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00cec9;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #636e72;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .add-medicine-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                grid-column: span 1;
+            }
+            
+            .notification-panel {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #636e72;
+            padding: 40px;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><iconify-icon icon="lucide:pill" style="vertical-align: middle; margin-left: 8px; color: var(--gold);"></iconify-icon> مذكر الأدوية الذكي</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('add')">إضافة دواء</button>
+            <button class="tab" onclick="showTab('schedule')">جدول اليوم</button>
+            <button class="tab" onclick="showTab('list')">قائمة الأدوية</button>
+            <button class="tab" onclick="showTab('stats')">الإحصائيات</button>
+        </div>
+
+        <!-- Add Medicine Tab -->
+        <div id="addTab" class="main-card">
+            <h2><iconify-icon icon="lucide:plus-circle" style="vertical-align: middle; margin-left: 8px; color: var(--gold);"></iconify-icon> إضافة دواء جديد</h2>
+            <form class="add-medicine-form" onsubmit="addMedicine(event)">
+                <div class="form-group">
+                    <label for="medicineName">اسم الدواء:</label>
+                    <input type="text" id="medicineName" required placeholder="مثال: الباراسيتامول">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dosage">الجرعة:</label>
+                    <input type="text" id="dosage" required placeholder="مثال: 500 مغ">
+                </div>
+                
+                <div class="form-group">
+                    <label for="frequency">عدد المرات يومياً:</label>
+                    <select id="frequency" required>
+                        <option value="1">مرة واحدة</option>
+                        <option value="2">مرتان</option>
+                        <option value="3">ثلاث مرات</option>
+                        <option value="4">أربع مرات</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="startTime">وقت البداية:</label>
+                    <input type="time" id="startTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="duration">مدة العلاج (أيام):</label>
+                    <input type="number" id="duration" min="1" placeholder="مثال: 7">
+                </div>
+                
+                <div class="form-group">
+                    <label for="instructions">تعليمات:</label>
+                    <select id="instructions">
+                        <option value="before_meal">قبل الأكل</option>
+                        <option value="after_meal">بعد الأكل</option>
+                        <option value="with_meal">مع الأكل</option>
+                        <option value="empty_stomach">على معدة فارغة</option>
+                        <option value="no_restriction">لا توجد قيود</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn"><iconify-icon icon="lucide:pill" style="vertical-align: middle; margin-left: 8px;"></iconify-icon> إضافة الدواء</button>
+            </form>
+        </div>
+
+        <!-- Today's Schedule Tab -->
+        <div id="scheduleTab" class="main-card" style="display: none;">
+            <h2><iconify-icon icon="lucide:calendar" style="vertical-align: middle; margin-left: 8px; color: var(--gold);"></iconify-icon> جدول اليوم</h2>
+            <div id="todaySchedule" class="today-schedule">
+                <!-- Schedule items will be populated here -->
+            </div>
+        </div>
+
+        <!-- Medicine List Tab -->
+        <div id="listTab" class="main-card" style="display: none;">
+            <h2><iconify-icon icon="lucide:clipboard-list" style="vertical-align: middle; margin-left: 8px; color: var(--gold);"></iconify-icon> قائمة جميع الأدوية</h2>
+            <div id="medicineList" class="medicine-list">
+                <!-- Medicine cards will be populated here -->
+            </div>
+        </div>
+
+        <!-- Statistics Tab -->
+        <div id="statsTab" class="main-card" style="display: none;">
+            <h2><iconify-icon icon="lucide:bar-chart-3" style="vertical-align: middle; margin-left: 8px; color: var(--gold);"></iconify-icon> الإحصائيات</h2>
+            <div class="statistics" id="statisticsContainer">
+                <!-- Statistics will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div id="notificationPanel" class="notification-panel">
+        <!-- Notifications will appear here -->
+    </div>
+
+    <script>
+        let medicines = [];
+        let todayLog = [];
+        let reminderInterval;
+
+        // Load data from memory on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMedicines();
+            updateAllViews();
+            startReminderSystem();
+            requestNotificationPermission();
+        });
+
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        showNotification('تم تفعيل التنبيهات', 'سنذكرك بمواعيد أدويتك', 'success');
+                    }
+                });
+            }
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.main-card').forEach(card => {
+                card.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').style.display = 'block';
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Update views when switching tabs
+            if (tabName === 'schedule') {
+                updateTodaySchedule();
+            } else if (tabName === 'list') {
+                updateMedicineList();
+            } else if (tabName === 'stats') {
+                updateStatistics();
+            }
+        }
+
+        function addMedicine(event) {
+            event.preventDefault();
+            
+            const medicine = {
+                id: Date.now(),
+                name: document.getElementById('medicineName').value,
+                dosage: document.getElementById('dosage').value,
+                frequency: parseInt(document.getElementById('frequency').value),
+                startTime: document.getElementById('startTime').value,
+                duration: document.getElementById('duration').value || null,
+                instructions: document.getElementById('instructions').value,
+                createdAt: new Date().toISOString(),
+                active: true
+            };
+            
+            medicines.push(medicine);
+            saveMedicines();
+            updateAllViews();
+            
+            // Reset form
+            event.target.reset();
+            
+            showNotification('تم إضافة الدواء بنجاح', `${medicine.name} - ${medicine.dosage}`, 'success');
+        }
+
+        function deleteMedicine(id) {
+            if (confirm('هل أنت متأكد من حذف هذا الدواء؟')) {
+                medicines = medicines.filter(med => med.id !== id);
+                saveMedicines();
+                updateAllViews();
+                showNotification('تم حذف الدواء', '', 'info');
+            }
+        }
+
+        function toggleMedicine(id) {
+            const medicine = medicines.find(med => med.id === id);
+            if (medicine) {
+                medicine.active = !medicine.active;
+                saveMedicines();
+                updateAllViews();
+                showNotification(medicine.active ? 'تم تفعيل الدواء' : 'تم إيقاف الدواء', medicine.name, 'info');
+            }
+        }
+
+        function generateDailySchedule(medicine) {
+            const schedule = [];
+            const startTime = new Date(`2000-01-01 ${medicine.startTime}`);
+            const intervalHours = 24 / medicine.frequency;
+            
+            for (let i = 0; i < medicine.frequency; i++) {
+                const time = new Date(startTime.getTime() + (i * intervalHours * 60 * 60 * 1000));
+                schedule.push({
+                    medicineId: medicine.id,
+                    medicineName: medicine.name,
+                    dosage: medicine.dosage,
+                    time: time.toTimeString().substring(0, 5),
+                    instructions: medicine.instructions,
+                    taken: false,
+                    id: `${medicine.id}_${i}`
+                });
+            }
+            
+            return schedule;
+        }
+
+        function updateTodaySchedule() {
+            const container = document.getElementById('todaySchedule');
+            const today = new Date().toDateString();
+            
+            // Generate today's schedule
+            let todaySchedule = [];
+            medicines.filter(med => med.active).forEach(medicine => {
+                todaySchedule = todaySchedule.concat(generateDailySchedule(medicine));
+            });
+            
+            // Sort by time
+            todaySchedule.sort((a, b) => a.time.localeCompare(b.time));
+            
+            if (todaySchedule.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <h3>لا توجد أدوية مجدولة لليوم</h3>
+                        <p>أضف بعض الأدوية لتظهر هنا</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = todaySchedule.map(item => {
+                const now = new Date();
+                const itemTime = new Date(`${today} ${item.time}`);
+                const isOverdue = itemTime < now && !item.taken;
+                const instructionText = getInstructionText(item.instructions);
+                
+                return `
+                    <div class="schedule-item ${item.taken ? 'taken' : ''} ${isOverdue ? 'overdue' : ''}">
+                        <div>
+                            <div class="schedule-time">${item.time}</div>
+                            <div><strong>${item.medicineName}</strong> - ${item.dosage}</div>
+                            <div class="medicine-details">${instructionText}</div>
+                        </div>
+                        <div>
+                            <input type="checkbox" class="taken-checkbox" 
+                                   ${item.taken ? 'checked' : ''} 
+                                   onchange="markAsTaken('${item.id}', this.checked)">
+                            <label>تم التناول</label>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateMedicineList() {
+            const container = document.getElementById('medicineList');
+            
+            if (medicines.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">💊</div>
+                        <h3>لا توجد أدوية مضافة</h3>
+                        <p>ابدأ بإضافة أدويتك من التبويب الأول</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = medicines.map(medicine => {
+                const instructionText = getInstructionText(medicine.instructions);
+                const statusColor = medicine.active ? '#00cec9' : '#ddd';
+                
+                return `
+                    <div class="medicine-card" style="border-left-color: ${statusColor}">
+                        <div class="medicine-info">
+                            <div class="medicine-name">${medicine.name}</div>
+                            <div class="medicine-details"><strong>الجرعة:</strong> ${medicine.dosage}</div>
+                            <div class="medicine-details"><strong>التكرار:</strong> ${medicine.frequency} مرات يومياً</div>
+                            <div class="medicine-details"><strong>وقت البداية:</strong> ${medicine.startTime}</div>
+                            <div class="medicine-details"><strong>التعليمات:</strong> ${instructionText}</div>
+                            ${medicine.duration ? `<div class="medicine-details"><strong>المدة:</strong> ${medicine.duration} أيام</div>` : ''}
+                            <div class="medicine-details"><strong>الحالة:</strong> ${medicine.active ? '✅ نشط' : '⏸️ متوقف'}</div>
+                        </div>
+                        <div class="medicine-actions">
+                            <button class="btn-small" onclick="toggleMedicine(${medicine.id})">
+                                ${medicine.active ? 'إيقاف' : 'تفعيل'}
+                            </button>
+                            <button class="btn-small btn-danger" onclick="deleteMedicine(${medicine.id})">حذف</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStatistics() {
+            const container = document.getElementById('statisticsContainer');
+            const totalMedicines = medicines.length;
+            const activeMedicines = medicines.filter(med => med.active).length;
+            const dailyDoses = medicines.reduce((total, med) => total + (med.active ? med.frequency : 0), 0);
+            
+            // Calculate adherence rate (this is a simplified calculation)
+            const todayScheduleCount = dailyDoses;
+            const takenToday = todayLog.filter(log => {
+                const logDate = new Date(log.timestamp).toDateString();
+                return logDate === new Date().toDateString() && log.taken;
+            }).length;
+            
+            const adherenceRate = todayScheduleCount > 0 ? Math.round((takenToday / todayScheduleCount) * 100) : 0;
+            
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalMedicines}</div>
+                    <div class="stat-label">إجمالي الأدوية</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${activeMedicines}</div>
+                    <div class="stat-label">الأدوية النشطة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${dailyDoses}</div>
+                    <div class="stat-label">الجرعات اليومية</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${adherenceRate}%</div>
+                    <div class="stat-label">معدل الالتزام اليوم</div>
+                </div>
+            `;
+        }
+
+        function markAsTaken(scheduleId, taken) {
+            const logEntry = {
+                scheduleId: scheduleId,
+                taken: taken,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Remove previous log for this schedule item
+            todayLog = todayLog.filter(log => log.scheduleId !== scheduleId);
+            
+            // Add new log entry
+            todayLog.push(logEntry);
+            
+            updateTodaySchedule();
+            showNotification(taken ? 'تم تسجيل تناول الدواء' : 'تم إلغاء تسجيل الدواء', '', 'success');
+        }
+
+        function getInstructionText(instruction) {
+            const instructions = {
+                'before_meal': 'قبل الأكل',
+                'after_meal': 'بعد الأكل',
+                'with_meal': 'مع الأكل',
+                'empty_stomach': 'على معدة فارغة',
+                'no_restriction': 'لا توجد قيود'
+            };
+            return instructions[instruction] || 'غير محدد';
+        }
+
+        function startReminderSystem() {
+            // Check every minute for reminders
+            reminderInterval = setInterval(checkReminders, 60000);
+            
+            // Also check immediately
+            checkReminders();
+        }
+
+        function checkReminders() {
+            const now = new Date();
+            const currentTime = now.toTimeString().substring(0, 5);
+            const today = now.toDateString();
+            
+            medicines.filter(med => med.active).forEach(medicine => {
+                const schedule = generateDailySchedule(medicine);
+                
+                schedule.forEach(item => {
+                    if (item.time === currentTime) {
+                        const alreadyTaken = todayLog.some(log => 
+                            log.scheduleId === item.id && 
+                            new Date(log.timestamp).toDateString() === today && 
+                            log.taken
+                        );
+                        
+                        if (!alreadyTaken) {
+                            showMedicineReminder(item);
+                        }
+                    }
+                });
+            });
+        }
+
+        function showMedicineReminder(scheduleItem) {
+            const instructionText = getInstructionText(scheduleItem.instructions);
+            
+            // Browser notification
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(`وقت تناول الدواء: ${scheduleItem.medicineName}`, {
+                    body: `الجرعة: ${scheduleItem.dosage}\n${instructionText}`,
+                    icon: '💊'
+                });
+            }
+            
+            // In-page notification
+            showNotification(
+                `⏰ وقت تناول الدواء`,
+                `${scheduleItem.medicineName} - ${scheduleItem.dosage}\n${instructionText}`,
+                'reminder'
+            );
+        }
+
+        function showNotification(title, message, type = 'info') {
+            const panel = document.getElementById('notificationPanel');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            notification.innerHTML = `
+                <div class="notification-title">${title}</div>
+                <div>${message}</div>
+                <div class="notification-time">${new Date().toLocaleTimeString()}</div>
+            `;
+            
+            panel.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        function saveMedicines() {
+            // Since localStorage is not available, we'll keep data in memory during the session
+            // In a real application, this would save to localStorage or a server
+        }
+
+        function loadMedicines() {
+            // Since localStorage is not available, we'll start with empty data
+            // In a real application, this would load from localStorage or a server
+        }
+
+        function updateAllViews() {
+            updateTodaySchedule();
+            updateMedicineList();
+            updateStatistics();
+        }
+    </script>
+</body>
+</html>

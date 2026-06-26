@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التفاعلات الدوائية - أدوية لا يجب دمجها</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f5f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #1f2a44;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .back-button-container {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .back-button {
+            background: #1f2a44;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(31,42,68,0.2);
+        }
+
+        .back-button:hover {
+            background: #c9a24b;
+            color: #1f2a44;
+            transform: translateY(-2px);
+        }
+
+        .back-arrow {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 30px;
+        }
+
+        h1 {
+            color: #1f2a44;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-family: 'Georgia', serif;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #5a6874;
+            margin-bottom: 20px;
+        }
+
+        .warning-box {
+            background-color: #fff9e6;
+            border-right: 5px solid #c9a24b;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .warning-box h3 {
+            color: #1f2a44;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .warning-box p {
+            color: #4b5e6b;
+            font-weight: 500;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #1f2a44;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            border-right: 4px solid #c9a24b;
+            padding-right: 15px;
+            font-weight: 600;
+        }
+
+        .interaction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .interaction-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 22px;
+            transition: all 0.25s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .interaction-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(31,42,68,0.08);
+            border-color: #c9a24b;
+        }
+
+        .interaction-card h3 {
+            color: #c0392b;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .drug-combination {
+            background-color: #fafafc;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            border-right: 3px solid #c0392b;
+        }
+
+        .drug-names {
+            font-weight: bold;
+            color: #1f2a44;
+            margin-bottom: 6px;
+        }
+
+        .risk-description {
+            color: #4a5b6e;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .risk-level {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .high-risk {
+            background-color: #ffe6e5;
+            color: #b33a34;
+            border: 1px solid #f5c6cb;
+        }
+
+        .moderate-risk {
+            background-color: #fff3e0;
+            color: #e67e22;
+            border: 1px solid #ffe0b3;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.2s;
+            background: white;
+            color: #1f2a44;
+        }
+
+        .search-input:focus {
+            border-color: #c9a24b;
+            box-shadow: 0 0 0 3px rgba(201,162,75,0.2);
+        }
+
+        .tips-section {
+            background-color: #ffffff;
+            border-radius: 24px;
+            padding: 30px;
+            margin-top: 40px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .tips-section h2 {
+            color: #1f2a44;
+            border-right-color: #c9a24b;
+        }
+
+        .tip-list {
+            list-style: none;
+            padding-right: 0;
+        }
+
+        .tip-list li {
+            margin-bottom: 14px;
+            padding-right: 28px;
+            position: relative;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+
+        .tip-list li::before {
+            content: "✓";
+            position: absolute;
+            right: 0;
+            color: #c9a24b;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
+            color: #7c8b9c;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            h1 { font-size: 1.8rem; }
+            .interaction-grid { grid-template-columns: 1fr; }
+        }
+
+        /* شاشة الانترو */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #intro img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+        @media (max-width: 768px) {
+            #intro img { max-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+    <img src="R (1).gif" alt="Intro GIF">
+</div>
+<script>
+    setTimeout(() => {
+        const intro = document.getElementById('intro');
+        if (intro) intro.style.display = 'none';
+    }, 5000);
+</script>
+
+<div class="container">
+    <div class="back-button-container">
+        <button onclick="history.back()" class="back-button">
+            <span class="back-arrow">←</span>
+            <span class="back-text">رجوع</span>
+        </button>
+    </div>
+
+    <header>
+        <h1>⚠️ دليل التفاعلات الدوائية</h1>
+        <p class="subtitle">معلومات حاسمة عن الأدوية التي لا يجب دمجها</p>
+    </header>
+
+    <div class="warning-box">
+        <h3>📋 إخلاء مسؤولية طبي هام</h3>
+        <p>هذه المعلومات لأغراض تعليمية فقط. استشر دائمًا مقدم الرعاية الصحية أو الصيدلي أو الطبيب قبل البدء أو إيقاف أو تغيير أي دواء. لا تتجاهل أبدًا النصيحة الطبية المهنية.</p>
+    </div>
+
+    <div class="search-box">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 ابحث عن دواء معين أو تفاعل دوائي...">
+    </div>
+
+    <div class="section">
+        <h2>التفاعلات الدوائية الخطيرة الشائعة</h2>
+        <div class="interaction-grid" id="interactionGrid">
+            
+            <div class="interaction-card">
+                <h3>مميعات الدم + مسكنات الألم</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">الوارفارين + الأسبرين / مضادات الالتهاب غير الستيرويدية</div>
+                    <div class="risk-description">تزيد بشكل كبير من خطر النزيف. يمكن أن تسبب نزيفًا داخليًا، خاصة في المعدة والدماغ.</div>
+                    <span class="risk-level high-risk">خطر مرتفع</span>
+                </div>
+            </div>
+
+            <div class="interaction-card">
+                <h3>أدوية القلب</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">ديجوكسين + مدرات البول</div>
+                    <div class="risk-description">مدرات البول يمكن أن تخفض مستويات البوتاسيوم، مما يجعل الديجوكسين أكثر سمية وقد يسبب تغييرات خطيرة في ضربات القلب.</div>
+                    <span class="risk-level high-risk">خطر مرتفع</span>
+                </div>
+            </div>
+
+            <div class="interaction-card">
+                <h3>مضادات الاكتئاب + مسكنات الألم</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">مثبطات أكسيداز أحادي الأمين + ترامادول / ميبيريدين</div>
+                    <div class="risk-description">يمكن أن تسبب متلازمة السيروتونين، وهي حالة قد تهدد الحياة وتتميز بحمى عالية، ارتباك، وتيبس عضلي.</div>
+                    <span class="risk-level high-risk">خطر مرتفع</span>
+                </div>
+            </div>
+
+            <div class="interaction-card">
+                <h3>المضادات الحيوية + مميعات الدم</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">المضادات الحيوية + الوارفارين</div>
+                    <div class="risk-description">العديد من المضادات الحيوية يمكن أن تزيد من تأثير الوارفارين، مما يؤدي إلى نزيف مفرط. يتطلب مراقبة دقيقة.</div>
+                    <span class="risk-level moderate-risk">خطر متوسط</span>
+                </div>
+            </div>
+
+            <div class="interaction-card">
+                <h3>المهدئات + الكحول</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">البنزوديازيبينات + الكحول</div>
+                    <div class="risk-description">مزيج خطير يمكن أن يسبب تثبيطًا حادًا للجهاز التنفسي، غيبوبة، والموت.</div>
+                    <span class="risk-level high-risk">خطر مرتفع</span>
+                </div>
+            </div>
+
+            <div class="interaction-card">
+                <h3>أدوية الكوليسترول</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">الستاتينات + بعض المضادات الحيوية</div>
+                    <div class="risk-description">بعض المضادات الحيوية يمكن أن تزيد مستويات الستاتينات، مما يؤدي إلى تلف العضلات ومشاكل في الكلى.</div>
+                    <span class="risk-level moderate-risk">خطر متوسط</span>
+                </div>
+            </div>
+
+            <div class="interaction-card">
+                <h3>أدوية السكري</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">الأنسولين + مثبطات الإنزيم المحول للأنجيوتنسين</div>
+                    <div class="risk-description">يمكن أن تزيد من خطر انخفاض سكر الدم بشكل خطير، خاصة أثناء المرض أو انخفاض تناول الطعام.</div>
+                    <span class="risk-level moderate-risk">خطر متوسط</span>
+                </div>
+            </div>
+
+            <div class="interaction-card">
+                <h3>أدوية ضغط الدم</h3>
+                <div class="drug-combination">
+                    <div class="drug-names">مثبطات الإنزيم المحول + مكملات البوتاسيوم</div>
+                    <div class="risk-description">يمكن أن تسبب ارتفاعًا خطيرًا في مستويات البوتاسيوم، مما يؤثر على نظم القلب.</div>
+                    <span class="risk-level high-risk">خطر مرتفع</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="tips-section">
+        <h2>نصائح أمان أساسية</h2>
+        <ul class="tip-list">
+            <li>أخبر جميع مقدمي الرعاية الصحية عن كل دواء ومكمل وعلاج عشبي تتناوله</li>
+            <li>احتفظ دائمًا بقائمة محدثة بجميع أدويتك معك</li>
+            <li>استخدم نفس الصيدلية لجميع الوصفات الطبية عندما يكون ذلك ممكنًا – يمكنهم التحقق من التفاعلات</li>
+            <li>لا تتوقف أبدًا عن تناول الأدوية الموصوفة دون استشارة طبيبك أولاً</li>
+            <li>اقرأ جميع ملصقات الأدوية بعناية واتبع التعليمات بدقة</li>
+            <li>كن على دراية بأن الأدوية التي لا تستلزم وصفة طبية والمكملات يمكن أن تسبب تفاعلات أيضًا</li>
+            <li>أبلغ مقدم الرعاية الصحية فورًا عن أي أعراض أو آثار جانبية غير معتادة</li>
+            <li>حدد مواعيد منتظمة لمراجعة الأدوية مع طبيبك أو الصيدلي</li>
+            <li>قم بتخزين الأدوية بشكل صحيح وتحقق من تواريخ انتهاء الصلاحية بانتظام</li>
+            <li>لا تشارك أبدًا الأدوية الموصوفة مع الآخرين</li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>تذكر: هذه المعلومات ليست بديلاً عن الاستشارة الطبية المهنية. استشر دائمًا أخصائيي الرعاية الصحية للحصول على إرشادات شخصية حول أدويتك.</p>
+    </footer>
+</div>
+
+<script>
+    // البحث
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.interaction-card');
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(term) ? 'block' : 'none';
+        });
+    });
+
+    // تأثيرات التمرير
+    document.querySelectorAll('.interaction-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.borderColor = '#c9a24b';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.borderColor = '#e5e7eb';
+        });
+    });
+</script>
+</body>
+</html>

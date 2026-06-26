@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مراقبة المؤشرات الصحية</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f5f7;
+            min-height: 100vh;
+            padding: 20px;
+            color: #1f2a44;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #1f2a44;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            font-family: 'Georgia', serif;
+            font-weight: 700;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-panel, .chart-panel, .readings-history {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(31, 42, 68, 0.06);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .chart-panel {
+            position: relative;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: transparent;
+            color: #1f2a44;
+            padding: 10px 24px;
+            border: 1.5px solid #c9a24b;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .tab:hover {
+            background: rgba(201, 162, 75, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: #1f2a44;
+            border-color: #1f2a44;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1f2a44;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: #1f2a44;
+        }
+
+        input:focus, select:focus {
+            border-color: #c9a24b;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.2);
+        }
+
+        .btn {
+            background: #1f2a44;
+            color: white;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background: #2a3a5e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(31, 42, 68, 0.15);
+        }
+
+        .readings-history {
+            margin-top: 10px;
+        }
+
+        .reading-item {
+            background: #fafafc;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-right: 4px solid #c9a24b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .reading-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2a44;
+        }
+
+        .reading-date {
+            color: #6c7a8a;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .reading-status {
+            padding: 5px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            display: inline-block;
+        }
+
+        .normal { background: #2ecc71; }
+        .high { background: #e74c3c; }
+        .low { background: #3498db; }
+        .warning { background: #f39c12; color: #1f2a44; }
+
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fc;
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #c9a24b;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #5a6874;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .blood-pressure-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 20px;
+        }
+
+        .recommendations {
+            background: #fef9e6;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 25px;
+            border-right: 5px solid #c9a24b;
+        }
+
+        .recommendations h3 {
+            color: #1f2a44;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendations li {
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 14px;
+            border-right: 3px solid #c9a24b;
+            color: #1f2a44;
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #8a99a8;
+            padding: 40px;
+        }
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .blood-pressure-inputs {
+                grid-template-columns: 1fr;
+            }
+            .chart-container {
+                height: 280px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .tab {
+                padding: 6px 16px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* شاشة الانترو */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #intro img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+        @media (max-width: 768px) {
+            #intro img { max-width: 90%; }
+        }
+
+        /* زر الرجوع */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #1f2a44;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background: #c9a24b;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة الانترو -->
+<div id="intro">
+    <img src="R (1).gif" alt="Intro GIF">
+</div>
+<script>
+    setTimeout(() => {
+        const intro = document.getElementById('intro');
+        if (intro) intro.style.display = 'none';
+    }, 5000);
+</script>
+
+<!-- زر الرجوع -->
+<a href="main.html" class="back-button">←</a>
+
+<div class="container">
+    <h1>📊 مراقبة المؤشرات الصحية</h1>
+
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('bloodpressure')">ضغط الدم</button>
+        <button class="tab" onclick="showTab('bloodsugar')">سكر الدم</button>
+        <button class="tab" onclick="showTab('weight')">الوزن</button>
+        <button class="tab" onclick="showTab('heartrate')">معدل نبضات القلب</button>
+    </div>
+
+    <div class="dashboard">
+        <!-- لوحة الإدخال -->
+        <div class="input-panel">
+            <!-- ضغط الدم -->
+            <div id="bloodpressureTab" class="tab-content">
+                <h2 style="margin-bottom: 20px; color:#1f2a44;">📈 ضغط الدم</h2>
+                <form onsubmit="addReading(event, 'bloodpressure')">
+                    <div class="blood-pressure-inputs">
+                        <div class="form-group">
+                            <label>الضغط الانقباضي (العلوي):</label>
+                            <input type="number" id="bpSystolic" min="70" max="250" required placeholder="مثال: 120">
+                        </div>
+                        <div class="form-group">
+                            <label>الضغط الانبساطي (السفلي):</label>
+                            <input type="number" id="bpDiastolic" min="40" max="150" required placeholder="مثال: 80">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>التاريخ والوقت:</label>
+                        <input type="datetime-local" id="bpDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظات:</label>
+                        <input type="text" id="bpNotes" placeholder="مثال: بعد التمرين، قبل الدواء">
+                    </div>
+                    <button type="submit" class="btn">➕ إضافة قراءة</button>
+                </form>
+            </div>
+
+            <!-- سكر الدم -->
+            <div id="bloodsugarTab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 20px;">🩸 سكر الدم</h2>
+                <form onsubmit="addReading(event, 'bloodsugar')">
+                    <div class="form-group">
+                        <label>مستوى السكر (mg/dL):</label>
+                        <input type="number" id="sugarValue" min="50" max="500" required>
+                    </div>
+                    <div class="form-group">
+                        <label>توقيت القياس:</label>
+                        <select id="sugarTiming">
+                            <option value="fasting">صائم</option>
+                            <option value="before_meal">قبل الأكل</option>
+                            <option value="after_meal">بعد الأكل (بساعتين)</option>
+                            <option value="bedtime">قبل النوم</option>
+                            <option value="random">عشوائي</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>التاريخ والوقت:</label>
+                        <input type="datetime-local" id="sugarDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظات:</label>
+                        <input type="text" id="sugarNotes" placeholder="مثال: بعد وجبة دسمة">
+                    </div>
+                    <button type="submit" class="btn">➕ إضافة قراءة</button>
+                </form>
+            </div>
+
+            <!-- الوزن -->
+            <div id="weightTab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 20px;">⚖️ الوزن</h2>
+                <form onsubmit="addReading(event, 'weight')">
+                    <div class="form-group">
+                        <label>الوزن (كجم):</label>
+                        <input type="number" id="weightValue" min="30" max="300" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>التاريخ:</label>
+                        <input type="date" id="weightDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظات:</label>
+                        <input type="text" id="weightNotes" placeholder="مثال: الصباح، بعد الرياضة">
+                    </div>
+                    <button type="submit" class="btn">➕ إضافة قراءة</button>
+                </form>
+            </div>
+
+            <!-- معدل نبضات القلب -->
+            <div id="heartrateTab" class="tab-content" style="display: none;">
+                <h2 style="margin-bottom: 20px;">❤️ معدل نبضات القلب</h2>
+                <form onsubmit="addReading(event, 'heartrate')">
+                    <div class="form-group">
+                        <label>نبضة في الدقيقة:</label>
+                        <input type="number" id="hrValue" min="40" max="200" required>
+                    </div>
+                    <div class="form-group">
+                        <label>حالة النشاط:</label>
+                        <select id="hrActivity">
+                            <option value="rest">راحة</option>
+                            <option value="light">نشاط خفيف</option>
+                            <option value="moderate">نشاط متوسط</option>
+                            <option value="intense">نشاط مكثف</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>التاريخ والوقت:</label>
+                        <input type="datetime-local" id="hrDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظات:</label>
+                        <input type="text" id="hrNotes" placeholder="مثال: بعد صعود الدرج">
+                    </div>
+                    <button type="submit" class="btn">➕ إضافة قراءة</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- لوحة الرسم البياني والإحصائيات -->
+        <div class="chart-panel">
+            <div class="chart-container">
+                <canvas id="healthChart"></canvas>
+            </div>
+            <div class="statistics" id="statisticsContainer">
+                <!-- الإحصائيات -->
+            </div>
+        </div>
+    </div>
+
+    <!-- سجل القراءات والتوصيات -->
+    <div class="readings-history">
+        <h2 style="margin-bottom: 20px;">📋 السجل الصحي</h2>
+        <div id="readingsHistory"></div>
+        <div id="recommendationsPanel" class="recommendations">
+            <h3>💡 التوصيات الطبية</h3>
+            <ul id="recommendationsList"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    let healthData = {
+        bloodpressure: [],
+        bloodsugar: [],
+        weight: [],
+        heartrate: []
+    };
+    let currentTab = 'bloodpressure';
+    let healthChart = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeDates();
+        initializeChart();
+        updateAll();
+    });
+
+    function initializeDates() {
+        const now = new Date();
+        const dateTimeStr = now.toISOString().slice(0, 16);
+        const dateOnly = now.toISOString().slice(0, 10);
+        document.getElementById('bpDate').value = dateTimeStr;
+        document.getElementById('sugarDate').value = dateTimeStr;
+        document.getElementById('hrDate').value = dateTimeStr;
+        document.getElementById('weightDate').value = dateOnly;
+    }
+
+    function showTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+        document.getElementById(tabName + 'Tab').style.display = 'block';
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+        currentTab = tabName;
+        updateAll();
+    }
+
+    function addReading(event, type) {
+        event.preventDefault();
+        let reading = { id: Date.now(), timestamp: new Date().toISOString() };
+
+        switch(type) {
+            case 'bloodpressure':
+                reading.systolic = parseInt(document.getElementById('bpSystolic').value);
+                reading.diastolic = parseInt(document.getElementById('bpDiastolic').value);
+                reading.date = document.getElementById('bpDate').value;
+                reading.notes = document.getElementById('bpNotes').value;
+                break;
+            case 'bloodsugar':
+                reading.value = parseInt(document.getElementById('sugarValue').value);
+                reading.timing = document.getElementById('sugarTiming').value;
+                reading.date = document.getElementById('sugarDate').value;
+                reading.notes = document.getElementById('sugarNotes').value;
+                break;
+            case 'weight':
+                reading.value = parseFloat(document.getElementById('weightValue').value);
+                reading.date = document.getElementById('weightDate').value + 'T00:00';
+                reading.notes = document.getElementById('weightNotes').value;
+                break;
+            case 'heartrate':
+                reading.value = parseInt(document.getElementById('hrValue').value);
+                reading.activity = document.getElementById('hrActivity').value;
+                reading.date = document.getElementById('hrDate').value;
+                reading.notes = document.getElementById('hrNotes').value;
+                break;
+        }
+
+        healthData[type].push(reading);
+        healthData[type].sort((a,b) => new Date(a.date) - new Date(b.date));
+        event.target.reset();
+        initializeDates();
+        updateAll();
+        alert(`تمت إضافة القراءة بنجاح ✅`);
+    }
+
+    function deleteReading(type, id) {
+        if (confirm('هل أنت متأكد من حذف هذه القراءة؟')) {
+            healthData[type] = healthData[type].filter(r => r.id !== id);
+            updateAll();
+            alert('تم الحذف');
+        }
+    }
+
+    function initializeChart() {
+        const ctx = document.getElementById('healthChart').getContext('2d');
+        healthChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' }, title: { display: true, text: 'الرسم البياني للمؤشرات' } },
+                scales: { y: { beginAtZero: false } }
+            }
+        });
+    }
+
+    function updateChart() {
+        const data = healthData[currentTab];
+        if (data.length === 0) {
+            healthChart.data.labels = [];
+            healthChart.data.datasets = [];
+            healthChart.update();
+            return;
+        }
+        const labels = data.map(r => new Date(r.date).toLocaleDateString('ar-EG'));
+        let datasets = [];
+        switch(currentTab) {
+            case 'bloodpressure':
+                datasets = [
+                    { label: 'الضغط الانقباضي', data: data.map(r => r.systolic), borderColor: '#e74c3c', backgroundColor: 'rgba(231,76,60,0.1)', tension: 0.4 },
+                    { label: 'الضغط الانبساطي', data: data.map(r => r.diastolic), borderColor: '#3498db', backgroundColor: 'rgba(52,152,219,0.1)', tension: 0.4 }
+                ];
+                break;
+            case 'bloodsugar':
+                datasets = [{ label: 'سكر الدم (mg/dL)', data: data.map(r => r.value), borderColor: '#f39c12', backgroundColor: 'rgba(243,156,18,0.1)', tension: 0.4 }];
+                break;
+            case 'weight':
+                datasets = [{ label: 'الوزن (كجم)', data: data.map(r => r.value), borderColor: '#2ecc71', backgroundColor: 'rgba(46,204,113,0.1)', tension: 0.4 }];
+                break;
+            case 'heartrate':
+                datasets = [{ label: 'نبضة/دقيقة', data: data.map(r => r.value), borderColor: '#e17055', backgroundColor: 'rgba(225,112,85,0.1)', tension: 0.4 }];
+                break;
+        }
+        healthChart.data.labels = labels;
+        healthChart.data.datasets = datasets;
+        healthChart.update();
+    }
+
+    function updateStatistics() {
+        const container = document.getElementById('statisticsContainer');
+        const data = healthData[currentTab];
+        if (data.length === 0) {
+            container.innerHTML = '<div class="empty-state">لا توجد بيانات لعرضها</div>';
+            return;
+        }
+        let stats = '';
+        switch(currentTab) {
+            case 'bloodpressure':
+                const avgSys = Math.round(data.reduce((s, r) => s + r.systolic, 0)/data.length);
+                const avgDia = Math.round(data.reduce((s, r) => s + r.diastolic, 0)/data.length);
+                const last = data[data.length-1];
+                stats = `
+                    <div class="stat-card"><div class="stat-number">${avgSys}/${avgDia}</div><div class="stat-label">المتوسط</div></div>
+                    <div class="stat-card"><div class="stat-number">${last.systolic}/${last.diastolic}</div><div class="stat-label">آخر قراءة</div></div>
+                    <div class="stat-card"><div class="stat-number">${data.length}</div><div class="stat-label">إجمالي القراءات</div></div>
+                `;
+                break;
+            case 'bloodsugar':
+                const avgSugar = Math.round(data.reduce((s, r) => s + r.value, 0)/data.length);
+                const lastSugar = data[data.length-1];
+                stats = `
+                    <div class="stat-card"><div class="stat-number">${avgSugar}</div><div class="stat-label">متوسط السكر</div></div>
+                    <div class="stat-card"><div class="stat-number">${lastSugar.value}</div><div class="stat-label">آخر قراءة</div></div>
+                    <div class="stat-card"><div class="stat-number">${data.length}</div><div class="stat-label">إجمالي القراءات</div></div>
+                `;
+                break;
+            case 'weight':
+                const currentWeight = data[data.length-1].value;
+                const initialWeight = data[0].value;
+                const change = (currentWeight - initialWeight).toFixed(1);
+                stats = `
+                    <div class="stat-card"><div class="stat-number">${currentWeight}</div><div class="stat-label">الوزن الحالي</div></div>
+                    <div class="stat-card"><div class="stat-number">${change > 0 ? '+' : ''}${change}</div><div class="stat-label">التغير (كجم)</div></div>
+                    <div class="stat-card"><div class="stat-number">${data.length}</div><div class="stat-label">إجمالي القراءات</div></div>
+                `;
+                break;
+            case 'heartrate':
+                const avgHR = Math.round(data.reduce((s, r) => s + r.value, 0)/data.length);
+                const lastHR = data[data.length-1];
+                stats = `
+                    <div class="stat-card"><div class="stat-number">${avgHR}</div><div class="stat-label">متوسط النبض</div></div>
+                    <div class="stat-card"><div class="stat-number">${lastHR.value}</div><div class="stat-label">آخر قراءة</div></div>
+                    <div class="stat-card"><div class="stat-number">${data.length}</div><div class="stat-label">إجمالي القراءات</div></div>
+                `;
+                break;
+        }
+        container.innerHTML = stats;
+    }
+
+    function updateHistory() {
+        const container = document.getElementById('readingsHistory');
+        const data = healthData[currentTab];
+        if (data.length === 0) {
+            container.innerHTML = '<div class="empty-state">📭 لا توجد قراءات، أضف أول قراءة</div>';
+            return;
+        }
+        const sorted = [...data].sort((a,b) => new Date(b.date) - new Date(a.date));
+        const html = sorted.map(r => {
+            let valueDisplay = '', status = '';
+            if (currentTab === 'bloodpressure') {
+                valueDisplay = `${r.systolic}/${r.diastolic} مم زئبق`;
+                status = getBPStatus(r.systolic, r.diastolic);
+            } else if (currentTab === 'bloodsugar') {
+                valueDisplay = `${r.value} mg/dL`;
+                status = getSugarStatus(r.value, r.timing);
+            } else if (currentTab === 'weight') {
+                valueDisplay = `${r.value} كجم`;
+                status = 'normal';
+            } else {
+                valueDisplay = `${r.value} نبضة/دقيقة`;
+                status = getHRStatus(r.value);
+            }
+            const statusText = { normal:'طبيعي', high:'مرتفع', low:'منخفض', warning:'تحذير' }[status] || '';
+            return `
+                <div class="reading-item">
+                    <div>
+                        <div class="reading-value">${valueDisplay}</div>
+                        <div class="reading-date">${new Date(r.date).toLocaleString('ar-EG')}</div>
+                        ${r.notes ? `<div class="reading-date">📝 ${r.notes}</div>` : ''}
+                    </div>
+                    <div>
+                        <span class="reading-status ${status}">${statusText}</span>
+                        <button class="delete-btn" onclick="deleteReading('${currentTab}', ${r.id})">🗑 حذف</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        container.innerHTML = html;
+    }
+
+    function updateRecommendations() {
+        const container = document.getElementById('recommendationsList');
+        const data = healthData[currentTab];
+        if (data.length === 0) {
+            container.innerHTML = '<li>أضف قراءات للحصول على توصيات مخصصة</li>';
+            return;
+        }
+        let recs = [];
+        switch(currentTab) {
+            case 'bloodpressure':
+                const avgSys = data.reduce((s,r) => s + r.systolic, 0)/data.length;
+                if (avgSys > 140) recs = ['⚠️ ارتفاع ضغط الدم – استشر طبيبك', 'قلل الملح في الطعام', 'مارس الرياضة بانتظام', 'تجنب التدخين والكحول', 'نم جيداً'];
+                else recs = ['✅ ضغط الدم طبيعي', 'تابع نمط حياة صحي', 'راقب ضغطك دورياً', 'مارس المشي يومياً'];
+                break;
+            case 'bloodsugar':
+                const avgSugar = data.reduce((s,r) => s + r.value, 0)/data.length;
+                if (avgSugar > 126) recs = ['⚠️ ارتفاع السكر – استشر طبيبك', 'اتبع نظاماً غذائياً منخفض السكر', 'مارس الرياضة', 'راقب سكرك يومياً', 'التزم بالأدوية'];
+                else recs = ['✅ مستوى السكر طبيعي', 'حافظ على نظام غذائي متوازن', 'مارس النشاط البدني', 'تابع القراءات دورياً'];
+                break;
+            case 'weight':
+                recs = ['📌 راقب وزنك أسبوعياً', 'اتبع نظاماً غذائياً متوازناً', 'مارس الرياضة 150 دقيقة أسبوعياً', 'اشرب كمية كافية من الماء', 'نم 7-8 ساعات'];
+                break;
+            case 'heartrate':
+                recs = ['❤️ راقب نبضات قلبك', 'مارس التمارين الهوائية', 'تجنب الكافيين الزائد', 'تعلم تقنيات الاسترخاء', 'استشر طبيبك إذا كان النبض غير منتظم'];
+                break;
+        }
+        container.innerHTML = recs.map(r => `<li>${r}</li>`).join('');
+    }
+
+    function getBPStatus(s, d) {
+        if (s >= 140 || d >= 90) return 'high';
+        if (s < 90 || d < 60) return 'low';
+        if (s >= 120 || d >= 80) return 'warning';
+        return 'normal';
+    }
+    function getSugarStatus(val, timing) {
+        if (timing === 'fasting') {
+            if (val > 126) return 'high';
+            if (val < 70) return 'low';
+            if (val > 100) return 'warning';
+            return 'normal';
+        } else if (timing === 'after_meal') {
+            if (val > 200) return 'high';
+            if (val < 70) return 'low';
+            if (val > 140) return 'warning';
+            return 'normal';
+        } else {
+            if (val > 200) return 'high';
+            if (val < 70) return 'low';
+            return 'normal';
+        }
+    }
+    function getHRStatus(val) {
+        if (val > 100) return 'high';
+        if (val < 60) return 'low';
+        return 'normal';
+    }
+
+    function updateAll() {
+        updateChart();
+        updateStatistics();
+        updateHistory();
+        updateRecommendations();
+    }
+</script>
+</body>
+</html>

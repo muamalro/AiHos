@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة الفحص الأولي للأعراض والتشخيص</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f5f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #1f2a44;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-family: 'Georgia', serif;
+            font-weight: 700;
+        }
+
+        .quiz-container {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 25px rgba(31, 42, 68, 0.08);
+            border: 1px solid #e5e7eb;
+            min-height: 550px;
+            transition: all 0.3s;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 12px;
+            height: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #c9a24b;
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-size: 1.4rem;
+            color: #1f2a44;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        .options {
+            display: grid;
+            gap: 14px;
+        }
+
+        .option {
+            background: #ffffff;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #1f2a44;
+        }
+
+        .option:hover {
+            border-color: #c9a24b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(31, 42, 68, 0.08);
+        }
+
+        .option.selected {
+            background: #1f2a44;
+            color: white;
+            border-color: #1f2a44;
+        }
+        .option.selected span {
+            color: white !important;
+        }
+
+        .option-icon {
+            font-size: 1.4rem;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 35px;
+            gap: 15px;
+        }
+
+        .btn {
+            background: #1f2a44;
+            color: white;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background: #2a3a5e;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+            color: #6b7280;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1.5px solid #1f2a44;
+            color: #1f2a44;
+        }
+        .btn-secondary:hover {
+            background: #f0f2f5;
+            transform: translateY(-2px);
+        }
+
+        .results-container {
+            text-align: center;
+            display: none;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            color: #1f2a44;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .result-description {
+            font-size: 1.1rem;
+            color: #4b5563;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .recommendations {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: right;
+            border: 1px solid #e5e7eb;
+        }
+
+        .recommendations h3 {
+            color: #c9a24b;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendations li {
+            margin-bottom: 12px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 14px;
+            border-right: 4px solid #c9a24b;
+            color: #1f2a44;
+            font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .warning {
+            background: #fff9e6;
+            border: 1px solid #ffe6b3;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 20px;
+            color: #8a6d2b;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .emergency {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #c9a24b;
+        }
+
+        .start-title {
+            font-size: 1.8rem;
+            color: #1f2a44;
+            margin-bottom: 20px;
+        }
+
+        .start-description {
+            font-size: 1rem;
+            color: #4b5563;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+
+        /* شاشة الانترو */
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #intro img {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+        }
+        @media (max-width: 768px) {
+            #intro img { max-width: 90%; }
+            .quiz-container { padding: 20px; }
+            .question { font-size: 1.2rem; }
+            h1 { font-size: 1.6rem; }
+        }
+
+        /* زر الرجوع */
+        .back-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #1f2a44;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-decoration: none;
+        }
+        .back-home:hover {
+            background: #c9a24b;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة الانترو -->
+    <div id="intro">
+        <img src="R (1).gif" alt="Intro GIF">
+    </div>
+    <script>
+        setTimeout(function() {
+            const intro = document.getElementById('intro');
+            if (intro) intro.style.display = 'none';
+        }, 5000);
+    </script>
+
+    <!-- زر الرجوع -->
+    <a href="main.html" class="back-home">←</a>
+
+    <div class="container">
+        <h1>📋 أداة الفحص الأولي للأعراض والتشخيص</h1>
+
+        <div class="quiz-container">
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+            </div>
+
+            <!-- شاشة البداية -->
+            <div id="startScreen" class="start-screen">
+                <div class="start-icon">🏥🩺</div>
+                <h2 class="start-title">مرحباً بك في مدقق الأعراض</h2>
+                <p class="start-description">
+                    ستساعدك هذه الأداة في تقييم أعراضك بشكل أولي. سنطرح عليك عدة أسئلة لفهم حالتك بشكل أفضل.
+                    <br><br>
+                    <strong>تنبيه مهم:</strong> هذه الأداة لأغراض التوعية الصحية فقط ولا تغني عن الاستشارة الطبية المهنية.
+                </p>
+                <div class="warning">
+                    <strong>⚠️ تحذير:</strong> في الحالات الطارئة (ألم شديد في الصدر، صعوبة تنفس حادة، فقدان الوعي) توجه فوراً إلى أقرب مستشفى.
+                </div>
+                <button class="btn" onclick="startQuiz()">▶️ بدء التقييم</button>
+            </div>
+
+            <!-- شاشة الأسئلة -->
+            <div id="quizScreen" class="question-container" style="display: none;">
+                <div id="questionText" class="question"></div>
+                <div id="optionsContainer" class="options"></div>
+                <div class="navigation">
+                    <button id="prevBtn" class="btn btn-secondary" onclick="previousQuestion()" disabled>السابق</button>
+                    <button id="nextBtn" class="btn" onclick="nextQuestion()" disabled>التالي</button>
+                </div>
+            </div>
+
+            <!-- شاشة النتائج -->
+            <div id="resultsScreen" class="results-container">
+                <div id="resultIcon" class="result-icon"></div>
+                <h2 id="resultTitle" class="result-title"></h2>
+                <p id="resultDescription" class="result-description"></p>
+                <div class="recommendations">
+                    <h3>📌 التوصيات:</h3>
+                    <ul id="recommendationsList"></ul>
+                </div>
+                <div id="warningMessage" class="warning"></div>
+                <button class="btn" onclick="restartQuiz()">🔄 إعادة التقييم</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let answers = {};
+
+        // الأسئلة مترجمة بالكامل
+        const questions = [
+            {
+                id: 'mainSymptom',
+                text: 'ما هو العرض الرئيسي الذي تعاني منه؟',
+                type: 'single',
+                options: [
+                    { value: 'headache', text: '🤕 صداع', icon: '🤕' },
+                    { value: 'fever', text: '🌡️ حرارة (حمى)', icon: '🌡️' },
+                    { value: 'cough', text: '😷 كحة (سعال)', icon: '😷' },
+                    { value: 'stomachache', text: '🤢 ألم في المعدة', icon: '🤢' },
+                    { value: 'fatigue', text: '😴 تعب وإرهاق', icon: '😴' },
+                    { value: 'chestpain', text: '💔 ألم في الصدر', icon: '💔' }
+                ]
+            },
+            {
+                id: 'duration',
+                text: 'منذ متى وأنت تعاني من هذا العرض؟',
+                type: 'single',
+                options: [
+                    { value: 'hours', text: '⏰ بضع ساعات', icon: '⏰' },
+                    { value: '1-2days', text: '📅 1-2 يوم', icon: '📅' },
+                    { value: '3-7days', text: '📆 3-7 أيام', icon: '📆' },
+                    { value: 'weeks', text: '🗓️ أكثر من أسبوع', icon: '🗓️' }
+                ]
+            },
+            {
+                id: 'severity',
+                text: 'ما هي شدة الأعراض؟',
+                type: 'single',
+                options: [
+                    { value: 'mild', text: '😊 بسيطة (لا تؤثر على الأنشطة اليومية)', icon: '😊' },
+                    { value: 'moderate', text: '😐 متوسطة (تؤثر قليلاً على الأنشطة)', icon: '😐' },
+                    { value: 'severe', text: '😣 شديدة (تؤثر بشكل واضح على الأنشطة)', icon: '😣' },
+                    { value: 'extreme', text: '😰 شديدة جداً (لا أستطيع ممارسة أي نشاط)', icon: '😰' }
+                ]
+            },
+            {
+                id: 'additionalSymptoms',
+                text: 'هل تعاني من أي من هذه الأعراض الإضافية؟ (يمكن اختيار أكثر من إجابة)',
+                type: 'multiple',
+                options: [
+                    { value: 'nausea', text: '🤮 غثيان', icon: '🤮' },
+                    { value: 'dizziness', text: '😵‍💫 دوخة', icon: '😵‍💫' },
+                    { value: 'breathing', text: '😮‍💨 صعوبة في التنفس', icon: '😮‍💨' },
+                    { value: 'sweating', text: '💦 تعرق', icon: '💦' },
+                    { value: 'appetite', text: '🍽️ فقدان الشهية', icon: '🍽️' },
+                    { value: 'sleep', text: '😴 اضطراب النوم', icon: '😴' },
+                    { value: 'none', text: '✅ لا شيء مما سبق', icon: '✅' }
+                ]
+            },
+            {
+                id: 'temperature',
+                text: 'هل قست حرارتك؟',
+                type: 'single',
+                options: [
+                    { value: 'normal', text: '🌡️ طبيعية (أقل من 37.5°م)', icon: '🌡️' },
+                    { value: 'lowfever', text: '🌡️ حرارة خفيفة (37.5-38.5°م)', icon: '🌡️' },
+                    { value: 'highfever', text: '🌡️ حرارة مرتفعة (أعلى من 38.5°م)', icon: '🌡️' },
+                    { value: 'notchecked', text: '❓ لم أقيس', icon: '❓' }
+                ]
+            },
+            {
+                id: 'medicalHistory',
+                text: 'هل لديك أي أمراض مزمنة؟',
+                type: 'multiple',
+                options: [
+                    { value: 'diabetes', text: '🩺 السكري', icon: '🩺' },
+                    { value: 'hypertension', text: '💓 ارتفاع ضغط الدم', icon: '💓' },
+                    { value: 'heart', text: '❤️ أمراض القلب', icon: '❤️' },
+                    { value: 'asthma', text: '🫁 الربو', icon: '🫁' },
+                    { value: 'kidney', text: '🫘 أمراض الكلى', icon: '🫘' },
+                    { value: 'none', text: '✅ لا شيء', icon: '✅' }
+                ]
+            },
+            {
+                id: 'medications',
+                text: 'هل تتناول أي أدوية حالياً؟',
+                type: 'single',
+                options: [
+                    { value: 'yes', text: '💊 نعم، أتناول أدوية', icon: '💊' },
+                    { value: 'no', text: '🚫 لا، لا أتناول أدوية', icon: '🚫' },
+                    { value: 'supplements', text: '🌿 فقط مكملات غذائية', icon: '🌿' }
+                ]
+            }
+        ];
+
+        function startQuiz() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('questionText').textContent = q.text;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach(opt => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `<span class="option-icon">${opt.icon}</span><span>${opt.text}</span>`;
+                div.addEventListener('click', () => selectOption(opt.value, q.type, div));
+                container.appendChild(div);
+            });
+
+            // إعادة تمييز الإجابات السابقة
+            const saved = answers[q.id];
+            if (saved) {
+                const items = container.querySelectorAll('.option');
+                if (q.type === 'single') {
+                    items.forEach(item => {
+                        const val = item.querySelector('span:last-child').innerText;
+                        const matched = q.options.find(opt => opt.text === val);
+                        if (matched && matched.value === saved) {
+                            item.classList.add('selected');
+                        }
+                    });
+                } else if (q.type === 'multiple' && Array.isArray(saved)) {
+                    items.forEach(item => {
+                        const val = item.querySelector('span:last-child').innerText;
+                        const matched = q.options.find(opt => opt.text === val);
+                        if (matched && saved.includes(matched.value)) {
+                            item.classList.add('selected');
+                        }
+                    });
+                }
+            }
+
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.disabled = !hasAnswer(q.id, q.type);
+            document.getElementById('prevBtn').disabled = (currentQuestion === 0);
+        }
+
+        function hasAnswer(questionId, type) {
+            const ans = answers[questionId];
+            if (!ans) return false;
+            if (type === 'multiple') return Array.isArray(ans) && ans.length > 0;
+            return true;
+        }
+
+        function selectOption(value, type, element) {
+            const qid = questions[currentQuestion].id;
+            if (type === 'single') {
+                document.querySelectorAll('#optionsContainer .option').forEach(opt => opt.classList.remove('selected'));
+                element.classList.add('selected');
+                answers[qid] = value;
+            } else if (type === 'multiple') {
+                element.classList.toggle('selected');
+                if (!answers[qid]) answers[qid] = [];
+                if (element.classList.contains('selected')) {
+                    if (!answers[qid].includes(value)) answers[qid].push(value);
+                } else {
+                    answers[qid] = answers[qid].filter(v => v !== value);
+                }
+            }
+            document.getElementById('nextBtn').disabled = !hasAnswer(qid, type);
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'block';
+            document.getElementById('progressFill').style.width = '100%';
+            const diagnosis = analyzeSystems();
+            displayResults(diagnosis);
+        }
+
+        function analyzeSystems() {
+            const main = answers.mainSymptom;
+            const severity = answers.severity;
+            const duration = answers.duration;
+            const additional = answers.additionalSymptoms || [];
+            const temp = answers.temperature;
+            const medical = answers.medicalHistory || [];
+
+            // حالات الطوارئ
+            if (severity === 'extreme' ||
+                (main === 'chestpain' && additional.includes('breathing')) ||
+                temp === 'highfever' ||
+                additional.includes('breathing')) {
+                return {
+                    type: 'emergency',
+                    title: '🚨 حالة طارئة محتملة',
+                    description: 'بناءً على الأعراض، قد تحتاج إلى رعاية طبية عاجلة',
+                    icon: '🚨',
+                    recommendations: [
+                        'توجه فوراً إلى أقرب مستشفى أو اتصل بالإسعاف',
+                        'لا تؤخر طلب المساعدة الطبية',
+                        'ابقَ هادئاً وليُرافقك أحد إن أمكن'
+                    ],
+                    urgent: true
+                };
+            }
+
+            // تحليل حسب العرض الرئيسي
+            switch (main) {
+                case 'headache': return analyzeHeadache();
+                case 'fever': return analyzeFever();
+                case 'cough': return analyzeCough();
+                case 'stomachache': return analyzeStomachache();
+                case 'fatigue': return analyzeFatigue();
+                case 'chestpain': return analyzeChestPain();
+                default: return getGeneralAdvice();
+            }
+        }
+
+        function analyzeHeadache() {
+            const severity = answers.severity;
+            const duration = answers.duration;
+            if (severity === 'severe' && duration === 'hours') {
+                return {
+                    type: 'warning',
+                    title: '🤕 صداع شديد',
+                    description: 'قد يكون صداع نصفي أو صداع توتري حاد',
+                    icon: '🤕',
+                    recommendations: [
+                        'استرح في مكان هادئ ومظلم',
+                        'اشرب كمية كافية من الماء',
+                        'يمكنك تناول مسكن للألم (باراسيتامول)',
+                        'راجع الطبيب إذا استمر أكثر من 24 ساعة'
+                    ]
+                };
+            }
+            return {
+                type: 'normal',
+                title: '😊 صداع شائع',
+                description: 'غالباً صداع توتري أو مرتبط بالإجهاد',
+                icon: '😊',
+                recommendations: [
+                    'احصل على قسط كاف من الراحة',
+                    'حافظ على ترطيب الجسم وتناول وجبات منتظمة',
+                    'مارس تمارين الاسترخاء',
+                    'استشر الطبيب إذا تكرر الصداع'
+                ]
+            };
+        }
+
+        function analyzeFever() {
+            const temp = answers.temperature;
+            if (temp === 'highfever') {
+                return {
+                    type: 'warning',
+                    title: '🌡️ حرارة مرتفعة',
+                    description: 'تتطلب متابعة طبية',
+                    icon: '🌡️',
+                    recommendations: [
+                        'راجع الطبيب في أقرب وقت',
+                        'اشرب سوائل كثيرة',
+                        'استخدم كمادات باردة',
+                        'تناول خافض حرارة تحت إشراف طبي'
+                    ]
+                };
+            }
+            return {
+                type: 'normal',
+                title: '🤒 حرارة خفيفة',
+                description: 'غالباً عدوى فيروسية بسيطة',
+                icon: '🤒',
+                recommendations: [
+                    'احصل على راحة تامة',
+                    'اشرب سوائل دافئة بكثرة',
+                    'يمكنك تناول باراسيتامول',
+                    'راجع الطبيب إذا لم تتحسن خلال 3 أيام'
+                ]
+            };
+        }
+
+        function analyzeCough() {
+            const additional = answers.additionalSymptoms || [];
+            if (additional.includes('breathing')) {
+                return {
+                    type: 'warning',
+                    title: '😷 كحة مع صعوبة تنفس',
+                    description: 'قد تستدعي عناية طبية',
+                    icon: '😷',
+                    recommendations: [
+                        'راجع الطبيب قريباً',
+                        'تجنب المهيجات مثل الدخان',
+                        'اشرب سوائل دافئة',
+                        'استخدم مرطب الهواء'
+                    ]
+                };
+            }
+            return {
+                type: 'normal',
+                title: '😊 كحة عادية',
+                description: 'غالباً التهاب بسيط في الجهاز التنفسي',
+                icon: '😊',
+                recommendations: [
+                    'اشرب مشروبات دافئة',
+                    'استخدم العسل والليمون',
+                    'تجنب التدخين والملوثات',
+                    'راجع الطبيب إذا استمرت أكثر من أسبوعين'
+                ]
+            };
+        }
+
+        function analyzeStomachache() {
+            const severity = answers.severity;
+            const additional = answers.additionalSymptoms || [];
+            if (severity === 'severe' || additional.includes('nausea')) {
+                return {
+                    type: 'warning',
+                    title: '🤢 ألم شديد في المعدة',
+                    description: 'قد يكون التهاب معدة أو عسر هضم',
+                    icon: '🤢',
+                    recommendations: [
+                        'تجنب الأطعمة الدسمة والحارة',
+                        'اشرب كميات صغيرة من السوائل بانتظام',
+                        'راجع الطبيب إذا لم يتحسن',
+                        'تجنب الأدوية المهيجة للمعدة'
+                    ]
+                };
+            }
+            return {
+                type: 'normal',
+                title: '😊 عسر هضم بسيط',
+                description: 'غالباً مرتبط بالطعام أو التوتر',
+                icon: '😊',
+                recommendations: [
+                    'تناول وجبات صغيرة وخفيفة',
+                    'اشرب شاي الأعشاب',
+                    'تجنب الأطعمة المهيجة',
+                    'احصل على قسط من الراحة'
+                ]
+            };
+        }
+
+        function analyzeFatigue() {
+            const duration = answers.duration;
+            const medical = answers.medicalHistory || [];
+            if (duration === 'weeks' || medical.includes('diabetes')) {
+                return {
+                    type: 'warning',
+                    title: '😴 إرهاق مستمر',
+                    description: 'قد يحتاج إلى فحوصات شاملة',
+                    icon: '😴',
+                    recommendations: [
+                        'راجع الطبيب لإجراء الفحوصات',
+                        'احصل على نوم كافٍ',
+                        'اتبع نظاماً غذائياً متوازناً',
+                        'مارس تمارين خفيفة'
+                    ]
+                };
+            }
+            return {
+                type: 'normal',
+                title: '😊 إرهاق طبيعي',
+                description: 'غالباً بسبب قلة النوم أو التوتر',
+                icon: '😊',
+                recommendations: [
+                    'احصل على نوم 7-8 ساعات',
+                    'مارس الرياضة بانتظام',
+                    'اتبع نظاماً غذائياً صحياً',
+                    'قلل التوتر'
+                ]
+            };
+        }
+
+        function analyzeChestPain() {
+            return {
+                type: 'emergency',
+                title: '🚨 ألم في الصدر',
+                description: 'يجب فحصه طبياً فوراً',
+                icon: '🚨',
+                recommendations: [
+                    'توجه فوراً إلى المستشفى',
+                    'لا تتجاهل ألم الصدر',
+                    'اتصل بالإسعاف إذا كان شديداً',
+                    'تجنب أي مجهود بدني'
+                ],
+                urgent: true
+            };
+        }
+
+        function getGeneralAdvice() {
+            return {
+                type: 'normal',
+                title: '😊 نصائح عامة',
+                description: 'أعراض عامة تحتاج إلى مراقبة',
+                icon: '😊',
+                recommendations: [
+                    'احصل على قسط كاف من الراحة',
+                    'اشرب الكثير من السوائل',
+                    'راقب تطور الأعراض',
+                    'راجع الطبيب إذا لم تتحسن'
+                ]
+            };
+        }
+
+        function displayResults(diagnosis) {
+            document.getElementById('resultIcon').textContent = diagnosis.icon;
+            document.getElementById('resultTitle').textContent = diagnosis.title;
+            document.getElementById('resultDescription').textContent = diagnosis.description;
+            const list = document.getElementById('recommendationsList');
+            list.innerHTML = '';
+            diagnosis.recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                list.appendChild(li);
+            });
+            const warningDiv = document.getElementById('warningMessage');
+            if (diagnosis.urgent) {
+                warningDiv.className = 'warning emergency';
+                warningDiv.innerHTML = '<strong>🚨 تحذير طبي:</strong> هذه حالة طارئة محتملة. لا تؤخر طلب المساعدة الطبية الفورية.';
+            } else {
+                warningDiv.className = 'warning';
+                warningDiv.innerHTML = '<strong>📋 تذكير:</strong> هذا تقييم أولي فقط ولا يغني عن الاستشارة الطبية المهنية. راجع طبيبك للحصول على تشخيص دقيق.';
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            answers = {};
+            document.getElementById('resultsScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+    </script>
+</body>
+</html>

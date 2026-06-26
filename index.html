@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Learnova</title>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --navy: #1f2a44;
+            --navy-light: #2c3a5e;
+            --gold: #c9a24b;
+            --gold-light: #e6cf9c;
+            --bg: #f4f5f7;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+            --error-text: #c62828;
+            --bottom-bar-h: 64px;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--navy);
+            overflow: hidden;
+        }
+
+        /* ── INTRO ── */
+        #intro {
+            position: fixed; inset: 0;
+            background: var(--navy);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease;
+        }
+        #intro video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ── APP SHELL ── */
+        .app-shell {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ── TOP BAR ── */
+        .top-bar {
+            background: var(--navy);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            height: 60px;
+            flex-shrink: 0;
+            border-bottom: 2px solid var(--gold);
+            position: relative;
+            z-index: 100;
+        }
+
+        .top-bar-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .top-bar-logo img {
+            height: 36px;
+            width: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .top-bar-logo span {
+            color: #fff;
+            font-family: Georgia, serif;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .top-bar-search {
+            flex: 1;
+            margin: 0 12px;
+            position: relative;
+        }
+        .top-bar-search input {
+            width: 100%;
+            padding: 8px 36px 8px 12px;
+            border: 1px solid rgba(201,162,75,0.4);
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+        }
+        .top-bar-search input::placeholder { color: rgba(255,255,255,0.5); }
+        .top-bar-search input:focus {
+            background: rgba(255,255,255,0.18);
+            border-color: var(--gold);
+        }
+        .top-bar-search iconify-icon {
+            position: absolute;
+            left: 10px; top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 16px;
+        }
+
+        /* ── PAGE TITLE BAR ── */
+        .page-title-bar {
+            padding: 14px 16px 8px;
+            flex-shrink: 0;
+        }
+        .page-title-bar h1 {
+            font-family: Georgia, serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--navy);
+            border-bottom: 2.5px solid var(--gold);
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        /* ── SCROLL AREA ── */
+        .scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px 80px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ── CARD GRID ── */
+        .projects {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .project-card:active {
+            transform: scale(0.97);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .project-card img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            display: block;
+        }
+
+        .project-card h3 {
+            padding: 8px 10px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--navy);
+            line-height: 1.4;
+            text-align: center;
+            flex: 1;
+        }
+
+        .project-card.featured {
+            border: 2px solid var(--gold);
+        }
+        .project-card.featured::before {
+            content: "★";
+            position: absolute;
+            top: 8px; right: 8px;
+            background: var(--gold);
+            color: var(--navy);
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 20px;
+            z-index: 1;
+        }
+
+        .status-alert { border-color: var(--error-text) !important; }
+        .status-alert h3 { color: var(--error-text); }
+
+        /* ── ABOUT CARDS ── */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .about-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            overflow: hidden;
+            text-align: center;
+        }
+        .about-card img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            display: block;
+            border-bottom: 2px solid var(--gold-light);
+        }
+        .about-card h3 {
+            padding: 8px 8px 4px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.4;
+        }
+        .about-card p {
+            font-size: 11px;
+            color: #5f6368;
+            padding: 0 8px 10px;
+            line-height: 1.5;
+        }
+
+        /* ── CONTACT CARDS ── */
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .contact-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 18px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .contact-card h3 {
+            color: var(--navy);
+            font-family: Georgia, serif;
+            font-size: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gold-light);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .contact-card p {
+            margin: 10px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .contact-icon { font-size: 18px; color: var(--gold); flex-shrink: 0; }
+        .contact-card a {
+            color: var(--navy);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .contact-card a:hover { color: var(--gold); }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: var(--bottom-bar-h);
+            background: var(--navy);
+            display: flex;
+            border-top: 2px solid var(--gold);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            cursor: pointer;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            padding: 6px 2px;
+            border: none;
+            background: none;
+        }
+        .nav-item:active { background: rgba(201,162,75,0.15); }
+        .nav-item.active { background: rgba(201,162,75,0.18); }
+
+        .nav-item iconify-icon {
+            font-size: 22px;
+            color: rgba(230,207,156,0.55);
+            transition: color 0.2s;
+        }
+        .nav-item.active iconify-icon,
+        .nav-item:hover iconify-icon { color: var(--gold); }
+
+        .nav-item span {
+            font-size: 9px;
+            color: rgba(230,207,156,0.55);
+            text-align: center;
+            line-height: 1.2;
+            transition: color 0.2s;
+        }
+        .nav-item.active span,
+        .nav-item:hover span { color: var(--gold-light); }
+
+        .nav-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--gold);
+            position: absolute;
+            top: 6px;
+        }
+
+        /* ── TABLETS / DESKTOP ── */
+        @media (min-width: 640px) {
+            .projects { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+            .about-grid { grid-template-columns: repeat(3, 1fr); }
+            .scroll-area { padding: 12px 20px 90px; }
+        }
+        @media (min-width: 960px) {
+            .projects { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+  <video autoplay muted playsinline id="introVideo">
+    <source src="intro.mp4" type="video/mp4">
+    <source src="intro.webm" type="video/webm">
+  </video>
+</div>
+<script>
+  const intro = document.getElementById("intro");
+  const video = document.getElementById("introVideo");
+  let introHidden = false;
+  function hideIntro() {
+    if (introHidden) return; introHidden = true;
+    intro.style.opacity = "0";
+    setTimeout(() => { intro.style.display = "none"; document.body.style.overflow = ""; }, 1000);
+  }
+  if (localStorage.getItem("introPlayed")) { intro.style.display = "none"; }
+  else {
+    document.body.style.overflow = "hidden";
+    if (video) {
+      video.onended = () => setTimeout(hideIntro, 500);
+      video.querySelectorAll('source').forEach(s => s.addEventListener('error', hideIntro));
+      video.play().catch(hideIntro);
+    }
+    setTimeout(hideIntro, 4000);
+    localStorage.setItem("introPlayed", "true");
+  }
+</script>
+
+<!-- APP -->
+<div class="app-shell">
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="top-bar-logo">
+      <img src="https://i.top4top.io/p_3815wv3vf1.jpg" alt="Learnova">
+      <span>Learnova</span>
+    </div>
+    <div class="top-bar-search">
+      <input type="text" id="searchInput" placeholder="ابحث...">
+      <iconify-icon icon="lucide:search"></iconify-icon>
+    </div>
+  </header>
+
+  <!-- PAGE TITLE -->
+  <div class="page-title-bar">
+    <h1 id="pageTitle">خدمات الذكاء الاصطناعي</h1>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="scroll-area" id="contentArea"></div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="dashboard">
+      <iconify-icon icon="lucide:stethoscope"></iconify-icon>
+      <span>الذكاء<br>الاصطناعي</span>
+    </button>
+    <button class="nav-item" data-page="analytics">
+      <iconify-icon icon="lucide:smartphone"></iconify-icon>
+      <span>التطبيقات</span>
+    </button>
+    <button class="nav-item" data-page="projects">
+      <iconify-icon icon="lucide:dna"></iconify-icon>
+      <span>اعضاء<br>الجسم<br>ثلاثيةالأبعاد</span>
+    </button>
+    <button class="nav-item" data-page="team">
+      <iconify-icon icon="lucide:graduation-cap"></iconify-icon>
+      <span>الدورات</span>
+    </button>
+    <button class="nav-item" data-page="messages" style="position:relative">
+      <span class="nav-dot"></span>
+      <iconify-icon icon="lucide:mail"></iconify-icon>
+      <span>تواصل</span>
+    </button>
+    <button class="nav-item" data-page="settings">
+      <iconify-icon icon="lucide:info"></iconify-icon>
+      <span>من نحن</span>
+    </button>
+  </nav>
+
+</div>
+
+<script>
+const pages = {
+  dashboard: {
+    title: 'خدمات الذكاء الاصطناعي وإنترنت الأشياء',
+    content: `<div class="projects">
+      <a href="x-ray.html" class="project-card featured">
+        <img src="https://up6.cc/2026/06/178246406157671.png" alt="تصنيف أمراض الأشعة">
+        <h3>تصنيف أمراض الأشعة السينية</h3>
+      </a>
+      <a href="brain.html" class="project-card">
+        <img src="https://up6.cc/2026/06/17824670596621.jpg" alt="تصنيف أورام الدماغ">
+        <h3>تصنيف أورام الدماغ</h3>
+      </a>
+      <a href="jaild.html" class="project-card">
+        <img src="https://up6.cc/2026/06/178246675918331.jpg" alt="تصنيف الجلد">
+        <h3>تصنيف أمراض الجلد (تجريبي)</h3>
+      </a>
+      <a href="pox.html" class="project-card">
+        <img src="https://up6.cc/2026/06/178246776888141.jpg" alt="تصنيف الجدري">
+        <h3>تصنيف جميع أنواع الجدري</h3>
+      </a>
+      <a href="#" class="project-card">
+        <img src="https://up6.cc/2026/06/17824669482041.jpg" alt="تصنيف V و B">
+        <h3>تصنيف V &amp; B</h3>
+      </a>
+      <a href="https://192.168.43.90:5443" target="_blank" class="project-card status-alert">
+        <img src="https://up6.cc/2026/06/178246590565791.png" alt="تنبيه">
+        <h3>حالة تنبيه خاصة</h3>
+      </a>
+    </div>`
+  },
+  analytics: {
+    title: 'التطبيقات',
+    content: `<div class="projects">
+      <a href="Initial%20Screening%20and%20Diagnostic%20Tool.html" class="project-card featured">
+        <img src="https://up6.cc/2026/06/178246807356911.png" alt="أداة الفحص والتشخيص الأولي">
+        <h3>أداة الفحص والتشخيص الأولي</h3>
+      </a>
+      <a href="Comprehensive%20medical%20calculators.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/11/621396032.jpg" alt="حاسبات طبية شاملة">
+        <h3>حاسبات طبية شاملة</h3>
+      </a>
+      <a href="Health%20indicators%20monitor.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/11/432906170.jpg" alt="مراقبة المؤشرات الصحية">
+        <h3>مراقبة المؤشرات الصحية</h3>
+      </a>
+      <a href="drugX.html" class="project-card">
+        <img src="https://up6.cc/2026/06/178246885329291.png" alt="أدوية لا يجب الجمع">
+        <h3>أدوية يجب عدم تناولها مع أدوية أخرى</h3>
+      </a>
+      <a href="drugY.html" class="project-card">
+        <img src="https://up6.cc/2026/06/178246843537051.png" alt="أدوية يمكن الجمع">
+        <h3>أدوية يجب تناولها مع أدوية أخرى</h3>
+      </a>
+      <a href="Find%20Nearby%20Hospitals%20&%20Clinics.html" class="project-card">
+        <img src="https://up6.cc/2026/06/17824693704051.png" alt="المستشفيات والعيادات">
+        <h3>البحث عن أقرب المستشفيات والعيادات</h3>
+      </a>
+      <a href="Color%20Blindness%20Test.html" class="project-card">
+        <img src="https://up6.cc/2026/06/178246958611221.jpg" alt="فحص عمى الألوان">
+        <h3>فحص عمى الألوان</h3>
+      </a>
+      <a href="admin.html" class="project-card">
+        <img src="https://up6.cc/2026/06/178247032235021.jpg" alt="تتبع الأمراض">
+        <h3>نظام تتبع الأمراض في العراق</h3>
+      </a>
+      <a href="eye.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/349780193.jpg" alt="فحص العين">
+        <h3>فحص العين</h3>
+      </a>
+    </div>`
+  },
+  projects: {
+    title: 'أعضاء الجسم ثلاثية الأبعاد',
+    content: `<div class="projects">
+      <a href="3D%20Urinary%20System%20Model.html" class="project-card featured">
+        <img src="https://www2.0zz0.com/2025/10/01/12/146632725.jpg" alt="الجهاز البولي">
+        <h3>الجهاز البولي</h3>
+      </a>
+      <a href="3D%20Stomach%20Cross%20Section%20Anatomy%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/218771931.jpg" alt="المعدة">
+        <h3>قطاع المعدة التشريحي</h3>
+      </a>
+      <a href="3D%20Lungs%20and%20Heart%20Anatomy%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/868448796.jpg" alt="الرئتين والقلب">
+        <h3>تشريح الرئتين والقلب</h3>
+      </a>
+      <a href="3D%20Human%20Urinary%20System%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/747316610.jpg" alt="الجهاز البولي البشري">
+        <h3>الجهاز البولي البشري</h3>
+      </a>
+      <a href="3D%20Human%20Lungs%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/411096866.jpg" alt="الرئتان">
+        <h3>الرئتان البشريتان</h3>
+      </a>
+      <a href="3D%20Human%20Heart%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/808178659.jpg" alt="القلب">
+        <h3>القلب البشري</h3>
+      </a>
+      <a href="3D%20Nephron%20Anatomy%20Model.html" class="project-card">
+        <img src="https://tse4.mm.bing.net/th/id/OIP.uiAa-dWYyWitJKqTzNfrBwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="النفرون">
+        <h3>تشريح النفرون</h3>
+      </a>
+      <a href="3D%20Digestive%20System%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/199352346.jpg" alt="الجهاز الهضمي">
+        <h3>الجهاز الهضمي</h3>
+      </a>
+      <a href="3D%20Low%20Poly%20Brain%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/917640248.jpg" alt="الدماغ المبسط">
+        <h3>نموذج الدماغ المبسط</h3>
+      </a>
+      <a href="3D%20Brain%20Blood%20Supply%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/405660203.jpg" alt="التروية الدموية للدماغ">
+        <h3>التروية الدموية للدماغ</h3>
+      </a>
+      <a href="3D%20Complete%20Eye%20Anatomy%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/459895768.jpg" alt="تشريح العين">
+        <h3>تشريح العين الكامل</h3>
+      </a>
+      <a href="3D%20Human%20Liver%20Anatomy%20-%20Exploding%20View.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/928423644.jpg" alt="الكبد">
+        <h3>تشريح الكبد البشري</h3>
+      </a>
+      <a href="3D%20Body%20Surface%20Signs%20on%20the%20Back%20of%20the%20Torso.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/116953430.jpg" alt="علامات سطح الجسم">
+        <h3>علامات سطح الجسم على الظهر</h3>
+      </a>
+      <a href="3D%20Human%20Ear%20Anatomy%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/150259065.jpg" alt="الأذن">
+        <h3>تشريح الأذن البشرية</h3>
+      </a>
+      <a href="3D%20Respiratory%20System%20Anatomy%20Model.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/612604262.jpg" alt="الجهاز التنفسي">
+        <h3>تشريح الجهاز التنفسي</h3>
+      </a>
+      <a href="3D%20Complete%20Human%20Leg%20Anatomy.html" class="project-card">
+        <img src="https://www2.0zz0.com/2025/10/01/12/178306636.jpg" alt="الساق">
+        <h3>تشريح الساق البشرية الكامل</h3>
+      </a>
+    </div>`
+  },
+  team: {
+    title: 'الدورات التعليمية',
+    content: `<div class="projects">
+      <a href="https://youtube.com/playlist?list=PLJCnTNiwCh2Gn-ixLZvwVp0v0fc49WaAe&feature=shared" target="_blank" class="project-card featured">
+        <img src="https://www2.0zz0.com/2025/09/26/12/808301566.jpg" alt="علم الأحياء الجزيئي">
+        <h3>علم الأحياء الجزيئي</h3>
+      </a>
+      <a href="https://youtube.com/playlist?list=PLJCnTNiwCh2FyyBe_EdRSr3kVVaiusd6o&feature=shared" target="_blank" class="project-card">
+        <img src="https://www2.0zz0.com/2025/09/26/12/146426471.jpg" alt="المناعة">
+        <h3>علم المناعة</h3>
+      </a>
+      <a href="https://youtube.com/playlist?list=PLJCnTNiwCh2H2HWlD92nJBjMK3RR3v8UD&feature=shared" target="_blank" class="project-card">
+        <img src="https://up6.cc/2026/06/178247132283221.jpg" alt="الكيمياء العضوية">
+        <h3>الكيمياء العضوية</h3>
+      </a>
+      <a href="https://youtube.com/playlist?list=PLJCnTNiwCh2FT80Lo55pmxqLdigranfCq&feature=shared" target="_blank" class="project-card">
+        <img src="https://up6.cc/2026/06/178247150995091.png" alt="المصطلحات الطبية">
+        <h3>المصطلحات الطبية</h3>
+      </a>
+      <a href="https://youtube.com/playlist?list=PLJCnTNiwCh2EKCyAnH2ReynAEmCCbfYV-&feature=shared" target="_blank" class="project-card">
+        <img src="https://www2.0zz0.com/2025/09/26/12/824747890.jpg" alt="الأحياء الدقيقة البيئي">
+        <h3>علم الأحياء الدقيقة البيئي</h3>
+      </a>
+      <a href="https://youtube.com/playlist?list=PLJCnTNiwCh2EUsL1XaJHgmwJbDJiurwrc&feature=shared" target="_blank" class="project-card">
+        <img src="https://up6.cc/2026/06/178247173456821.png" alt="الكيمياء الحيوية النظرية">
+        <h3>الكيمياء الحيوية النظرية</h3>
+      </a>
+      <a href="https://youtube.com/playlist?list=PLJCnTNiwCh2G5Rz80MPXJJfllLwd17vIs&feature=shared" target="_blank" class="project-card">
+        <img src="https://www2.0zz0.com/2025/09/26/12/267322557.jpg" alt="الكيمياء العامة">
+        <h3>الكيمياء العامة</h3>
+      </a>
+      <a href="https://youtube.com/playlist?list=PLJCnTNiwCh2H2EJ0Dan86S2ChN2mMgDCS&feature=shared" target="_blank" class="project-card">
+        <img src="https://up6.cc/2026/06/178247195675881.png" alt="الكيمياء الحيوية التطبيقية">
+        <h3>الكيمياء الحيوية التطبيقية</h3>
+      </a>
+    </div>`
+  },
+  messages: {
+    title: 'تواصل معنا',
+    content: `<div class="contact-list">
+      <div class="contact-card">
+        <h3>محمد علي عباس</h3>
+        <p><iconify-icon class="contact-icon" icon="lucide:phone"></iconify-icon> <a href="tel:+9647875308263">+964 787 530 8263</a></p>
+        <p><iconify-icon class="contact-icon" icon="tabler:brand-telegram"></iconify-icon> <a href="https://t.me/FPrintpy" target="_blank">@FPrintpy</a></p>
+        <p><iconify-icon class="contact-icon" icon="lucide:mail"></iconify-icon> <a href="mailto:khdyrmhmdlybas@gmail.com">khdyrmhmdlybas@gmail.com</a></p>
+        <p><iconify-icon class="contact-icon" icon="tabler:brand-youtube"></iconify-icon> <a href="https://www.youtube.com/@MohamedAli-vk3rk" target="_blank">يوتيوب</a></p>
+        <p><iconify-icon class="contact-icon" icon="tabler:brand-linkedin"></iconify-icon> <a href="https://www.linkedin.com/in/mohammad-ali-abbas-khadir-762087375?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank">لينكدإن</a></p>
+      </div>
+      <div class="contact-card">
+        <h3>د. علاء الدين عباس</h3>
+        <p><iconify-icon class="contact-icon" icon="lucide:phone"></iconify-icon> <a href="tel:+9647807030306">+964 780 703 0306</a></p>
+        <p><iconify-icon class="contact-icon" icon="tabler:brand-telegram"></iconify-icon> <a href="https://t.me/DrAladdinAbbas" target="_blank">@DrAladdinAbbas</a></p>
+      </div>
+    </div>`
+  },
+  settings: {
+    title: 'من نحن',
+    content: `<div class="about-grid">
+      <div class="about-card">
+        <img src="https://www2.0zz0.com/2025/09/04/01/946667726.jpg" alt="محمد علي عباس">
+        <h3>برمجة: محمد علي عباس</h3>
+        <p>طالب في جامعة بابل، كلية تكنولوجيا المعلومات، قسم الشبكات</p>
+      </div>
+      <div class="about-card">
+        <img src="https://www2.0zz0.com/2025/10/01/09/184743642.jpg" alt="د. علاء الدين عباس">
+        <h3>إشراف: د. علاء الدين عباس</h3>
+        <p>تدريسي في جامعة بابل، كلية تكنولوجيا المعلومات، قسم الشبكات</p>
+      </div>
+      <div class="about-card">
+        <img src="https://up6.cc/2026/06/178247232839751.jpg" alt="امير ماجد حميد">
+        <h3>تصميم: امير ماجد حميد</h3>
+        <p>designer</p>
+      </div>
+      <div class="about-card">
+        <img src="https://up6.cc/2026/06/178247270160951.jpg" alt="حسن فلاح حسن">
+        <h3>الأجهزة التقنية: حسن فلاح حسن</h3>
+        <p>Hardware skill</p>
+      </div>
+      <div class="about-card">
+        <img src="https://up6.cc/2026/06/178247287379611.png" alt="عبيدة سيف عبد">
+        <h3>ذكاء اصطناعي: عبيدة سيف عبد</h3>
+        <p>Ai</p>
+      </div>
+    </div>`
+  }
+};
+
+const contentArea = document.getElementById('contentArea');
+const pageTitle = document.getElementById('pageTitle');
+const navItems = document.querySelectorAll('.nav-item');
+
+function switchPage(page) {
+  const data = pages[page];
+  if (!data) return;
+  pageTitle.textContent = data.title;
+  contentArea.innerHTML = data.content;
+  contentArea.scrollTop = 0;
+  navItems.forEach(n => n.classList.toggle('active', n.dataset.page === page));
+  localStorage.setItem('activePage', page);
+}
+
+navItems.forEach(btn => btn.addEventListener('click', () => switchPage(btn.dataset.page)));
+
+const lastPage = localStorage.getItem('activePage') || 'dashboard';
+switchPage(lastPage);
+
+document.getElementById('searchInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') alert('جاري البحث عن: ' + e.target.value);
+});
+</script>
+</body>
+</html>
